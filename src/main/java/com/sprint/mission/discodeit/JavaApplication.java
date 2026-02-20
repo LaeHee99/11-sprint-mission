@@ -3,6 +3,9 @@ package com.sprint.mission.discodeit;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.service.file.FileChannelService;
+import com.sprint.mission.discodeit.service.file.FileMessageService;
+import com.sprint.mission.discodeit.service.file.FileUserService;
 import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
@@ -12,9 +15,15 @@ import java.util.UUID;
 
 public class JavaApplication {
     public static void main(String[] args) {
+        /*
         JCFUserService userService = new JCFUserService();
         JCFMessageService messageService = new JCFMessageService();
         JCFChannelService channelService = new JCFChannelService();
+        */
+
+        FileUserService userService = new FileUserService();
+        FileMessageService messageService = new FileMessageService();
+        FileChannelService channelService = new FileChannelService();
 
         User userA = new User("Harry", "HarryId", "HarryPw", "Harry@hogwart.com");
         User userB = new User("Hermione", "HermioneId", "HermionePw", "Hermione@hogwart.com");
@@ -35,6 +44,10 @@ public class JavaApplication {
         UUID firstId = userA.getId();
         System.out.println("Harry's UUID: " + firstId);
         System.out.println("This UUID owner: " + userService.findUser(userA.getId()).getName());
+        System.out.println();
+
+        UUID channelId = channelA.getId();
+        System.out.println("Gryffindor's UUID: " + channelId);
         System.out.println();
 
         System.out.println("=== Showing All Users ===");
