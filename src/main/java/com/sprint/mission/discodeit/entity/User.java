@@ -24,6 +24,11 @@ public class User {
 
     public UUID getId(){return id;}
     public Long getCreatedAtL() {return createdAtL;}
+
     public Long getUpdatedAtL() {return updatedAtL;}
     public String getUser() {return user;}
+    @Override
+    public String toString() {
+        return String.format("User{id=%s, username='%s'}", id, user);
+    }
 }
