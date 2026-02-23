@@ -2,25 +2,18 @@ package com.sprint.mission.discodeit.entity;
 
 public class User extends Common{
     private String name;
-    private String userId;
-    private String password;
     private String email;
+    private String password;
 
-    public User(String name, String userId, String password, String email) {
+    public User(String name, String email, String password) {
         super();
         this.name = name;
-        this.userId = userId;
-        this.password = password;
         this.email = email;
-        // 인자 추가 시 수정
+        this.password = password;
     }
 
     public String getName() {
         return name;
-    }
-
-    public String getUserId() {
-        return userId;
     }
 
     public String getPassword() {
@@ -31,10 +24,6 @@ public class User extends Common{
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 
     public void setPassword(String password) {
@@ -49,9 +38,8 @@ public class User extends Common{
     public String toString() {
         return "User{" +
                 "name='" + name + '\'' +
-                ", userId='" + userId + '\'' +
-                ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
                 '}';
     }
 }

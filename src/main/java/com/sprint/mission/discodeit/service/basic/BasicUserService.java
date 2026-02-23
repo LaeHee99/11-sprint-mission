@@ -1,56 +1,48 @@
-package com.sprint.mission.discodeit.service.jcf;
+package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class JCFUserService implements UserService {
-    final List<User> userList;
+public class BasicUserService implements UserService {
 
-    public JCFUserService() {
-        userList = new ArrayList<>();
+    UserRepository userRepo;
+
+    public BasicUserService(UserRepository userRepo) {
+        this.userRepo = userRepo;
     }
 
     @Override
     public User createUser(String name, String email, String password) {
         User user = new User(name, email, password);
-        userList.add(user);
+        userRepo.save(user);
         return user;
     }
 
     @Override
     public User findUser(UUID id) {
-        for(User user: userList) {
-            if(user.getId().equals(id)) return user;
-        }
-        throw new IllegalArgumentException("User Not Found");
+        return userRepo.load(id);
     }
 
     @Override
     public List<User> findAllUser() {
-        return userList;
+        return userRepo.loadAll();
     }
 
     @Override
     public void updateUser(User oldUser, User newUser) {
-        // UUID를 유지하기 위해 remove -> add 하지 않음
         oldUser.setName(newUser.getName());
-        oldUser.setPassword(newUser.getPassword());
         oldUser.setEmail(newUser.getEmail());
+        oldUser.setPassword(newUser.getPassword());
         oldUser.update();
+        userRepo.save(oldUser);
     }
 
     @Override
     public void deleteUser(User user) {
-        userList.remove(user);
+        userRepo.delete(user);
     }
 }
-
-
-
-
-
-

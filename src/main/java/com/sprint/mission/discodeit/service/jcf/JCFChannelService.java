@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import java.util.ArrayList;
@@ -15,8 +16,10 @@ public class JCFChannelService implements ChannelService {
     }
 
     @Override
-    public void createChannel(Channel channel) {
+    public Channel createChannel(ChannelType channelType, String name, String description) {
+        Channel channel = new Channel(channelType, name, description);
         channelList.add(channel);
+        return channel;
     }
 
     @Override
@@ -35,7 +38,9 @@ public class JCFChannelService implements ChannelService {
     @Override
     public void updateChannel(Channel oldChannel, Channel newChannel) {
         // UUID를 유지하기 위해 remove -> add 하지 않음
+        oldChannel.setChannelType(newChannel.getChannelType());
         oldChannel.setName(newChannel.getName());
+        oldChannel.setDescription(newChannel.getDescription());
         oldChannel.update();
     }
 

@@ -17,8 +17,10 @@ public class JCFMessageService implements MessageService {
     }
 
     @Override
-    public void createMessage(Message message) {
+    public Message createMessage(String contents, UUID userId, UUID channelId) {
+        Message message = new Message(contents, userId, channelId);
         messageList.add(message);
+        return message;
     }
 
     @Override
@@ -38,6 +40,9 @@ public class JCFMessageService implements MessageService {
     public void updateMessage(Message oldMessage, Message newMessage) {
         // UUID를 유지하기 위해 remove -> add 하지 않음
         oldMessage.setContents(newMessage.getContents());
+        oldMessage.setUserId(newMessage.getUserId());
+        oldMessage.setChannelId(newMessage.getChannelId());
+        oldMessage.update();
     }
 
     @Override

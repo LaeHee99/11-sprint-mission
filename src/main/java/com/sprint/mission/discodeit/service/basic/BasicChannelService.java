@@ -1,55 +1,44 @@
-package com.sprint.mission.discodeit.service.file;
+package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
-public class FileChannelService extends FileUtil implements ChannelService {
+public class BasicChannelService implements ChannelService {
 
-    public FileChannelService() {
-        super("channels");
+    ChannelRepository channelRepo;
+
+    public BasicChannelService(ChannelRepository channelRepo) {
+        this.channelRepo = channelRepo;
     }
 
-    @Override
     public Channel createChannel(ChannelType channelType, String name, String description) {
         Channel channel = new Channel(channelType, name, description);
-        save(filePath(channel.getId()), channel);
+        channelRepo.save(channel);
         return channel;
     }
 
-    @Override
     public Channel findChannel(UUID id) {
-        Path path = filePath(id);
-        if(!Files.exists(path)) {
-            throw new IllegalArgumentException("Channel Not Found");
-        }
-        return load(path, Channel.class);
+        return channelRepo.load(id);
     }
 
-    @Override
     public List<Channel> findAllChannel() {
-        return loadAll(directory, Channel.class);
+        return channelRepo.loadAll();
     }
 
-    @Override
     public void updateChannel(Channel oldChannel, Channel newChannel) {
-        // UUID를 유지하기 위해 remove -> add 하지 않음
         oldChannel.setChannelType(newChannel.getChannelType());
         oldChannel.setName(newChannel.getName());
         oldChannel.setDescription(newChannel.getDescription());
         oldChannel.update();
-        save(filePath(oldChannel.getId()), oldChannel);
+        channelRepo.save(oldChannel);
     }
 
-    @Override
     public void deleteChannel(Channel channel) {
-        delete(filePath(channel.getId()));
+        channelRepo.delete(channel);
     }
-
 }

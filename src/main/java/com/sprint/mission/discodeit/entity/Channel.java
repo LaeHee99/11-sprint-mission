@@ -4,14 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Channel extends Common{
-    private String name;
-    private List<User> participants;
 
-    public Channel(String name, List<User> participants) {
+    private ChannelType channelType;
+    private String name;
+    private String description;
+
+    public Channel(ChannelType channelType, String name, String description) {
         super();
+        this.channelType = channelType;
         this.name = name;
-        this.participants = new ArrayList<>(participants);
-        // 인자 추가 시 수정
+        this.description = description;
+    }
+
+    public ChannelType getChannelType() {
+        return channelType;
+    }
+
+    public void setChannelType(ChannelType channelType) {
+        this.channelType = channelType;
     }
 
     public String getName() {
@@ -22,17 +32,20 @@ public class Channel extends Common{
         this.name = name;
     }
 
-    public List<User> getParticipants() {
-        return participants;
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override
     public String toString() {
         return "Channel{" +
-                "name='" + name + '\'' +
-                ", participants=" + participants.stream()
-                        .map(User::getName)
-                        .toList() +
+                "channelType=" + channelType +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
                 '}';
     }
 }

@@ -1,51 +1,43 @@
-package com.sprint.mission.discodeit.service.file;
+package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
-public class FileMessageService extends FileUtil implements MessageService {
-    public FileMessageService() {
-        super("messages");
+public class BasicMessageService implements MessageService {
+
+    MessageRepository messageRepo;
+
+    public BasicMessageService(MessageRepository messageRepo) {
+        this.messageRepo = messageRepo;
     }
 
-    @Override
     public Message createMessage(String contents, UUID userId, UUID channelId) {
         Message message = new Message(contents, userId, channelId);
-        save(filePath(message.getId()), message);
+        messageRepo.save(message);
         return message;
     }
 
-    @Override
     public Message findMessage(UUID id) {
-        Path path = filePath(id);
-        if(!Files.exists(path)) {
-            throw new IllegalArgumentException("Message Not Found");
-        }
-        return load(path, Message.class);
+        return messageRepo.load(id);
     }
 
-    @Override
     public List<Message> findAllMessage() {
-        return loadAll(directory, Message.class);
+        return messageRepo.loadAll();
     }
 
-    @Override
     public void updateMessage(Message oldMessage, Message newMessage) {
-        // UUID를 유지하기 위해 remove -> add 하지 않음
         oldMessage.setContents(newMessage.getContents());
         oldMessage.setUserId(newMessage.getUserId());
         oldMessage.setChannelId(newMessage.getChannelId());
         oldMessage.update();
-        save(filePath(oldMessage.getId()), oldMessage);
+        messageRepo.save(oldMessage);
     }
 
-    @Override
     public void deleteMessage(Message message) {
-        delete(filePath(message.getId()));
+        messageRepo.delete(message);
     }
 }

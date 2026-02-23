@@ -1,16 +1,17 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.util.UUID;
+
 public class Message extends Common{
     private String contents;
-    private User sender;
-    private Channel channel;
+    private UUID userId;
+    private UUID channelId;
 
-    public Message(String contents, User sender, Channel channel) {
+    public Message(String contents, UUID userId, UUID channelId) {
         super();
         this.contents = contents;
-        this.sender = sender;
-        this.channel = channel;
-        // 인자 추가 시 수정
+        this.userId = userId;
+        this.channelId = channelId;
     }
 
     public String getContents() {
@@ -21,20 +22,28 @@ public class Message extends Common{
         this.contents = contents;
     }
 
-    public User getSender() {
-        return sender;
+    public UUID getUserId() {
+        return userId;
     }
 
-    public Channel getChannel() {
-        return channel;
+    public void setUserId(UUID userId) {
+        this.userId = userId;
+    }
+
+    public UUID getChannelId() {
+        return channelId;
+    }
+
+    public void setChannelId(UUID channelId) {
+        this.channelId = channelId;
     }
 
     @Override
     public String toString() {
         return "Message{" +
                 "contents='" + contents + '\'' +
-                ", sender=" + sender.getName() +
-                ", channel=" + channel.getName() +
+                ", userId=" + userId +
+                ", channelId=" + channelId +
                 '}';
     }
 }

@@ -14,8 +14,10 @@ public class FileUserService extends FileUtil implements UserService {
     }
 
     @Override
-    public void createUser(User user) {
+    public User createUser(String name, String email, String password) {
+        User user = new User(name, email, password);
         save(filePath(user.getId()), user);
+        return user;
     }
 
     @Override
@@ -36,7 +38,6 @@ public class FileUserService extends FileUtil implements UserService {
     public void updateUser(User oldUser, User newUser) {
         // UUID를 유지하기 위해 remove -> add 하지 않음
         oldUser.setName(newUser.getName());
-        oldUser.setUserId(newUser.getUserId());
         oldUser.setPassword(newUser.getPassword());
         oldUser.setEmail(newUser.getEmail());
         oldUser.update();

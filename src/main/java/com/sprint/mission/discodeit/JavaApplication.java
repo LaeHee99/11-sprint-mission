@@ -1,8 +1,21 @@
 package com.sprint.mission.discodeit;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
+import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
+import com.sprint.mission.discodeit.repository.file.FileUserRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
+import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.service.basic.BasicChannelService;
+import com.sprint.mission.discodeit.service.basic.BasicMessageService;
+import com.sprint.mission.discodeit.service.basic.BasicUserService;
 import com.sprint.mission.discodeit.service.file.FileChannelService;
 import com.sprint.mission.discodeit.service.file.FileMessageService;
 import com.sprint.mission.discodeit.service.file.FileUserService;
@@ -14,100 +27,35 @@ import java.util.List;
 import java.util.UUID;
 
 public class JavaApplication {
-    public static void main(String[] args) {
-        /*
-        JCFUserService userService = new JCFUserService();
-        JCFMessageService messageService = new JCFMessageService();
-        JCFChannelService channelService = new JCFChannelService();
-        */
 
-        FileUserService userService = new FileUserService();
-        FileMessageService messageService = new FileMessageService();
-        FileChannelService channelService = new FileChannelService();
+    static User setupUser(UserService userService) {
+        User user = userService.createUser("woody", "woody@codeit.com", "woody1234");
+        return user;
+    }
 
-        User userA = new User("Harry", "HarryId", "HarryPw", "Harry@hogwart.com");
-        User userB = new User("Hermione", "HermioneId", "HermionePw", "Hermione@hogwart.com");
-        User userC = new User("Ron", "RonId", "RonPw", "Ron@hogwart.com");
+    static Channel setupChannel(ChannelService channelService) {
+        Channel channel = channelService.createChannel(ChannelType.PUBLIC, "공지", "공지 채널입니다.");
+        return channel;
+    }
 
-        Channel channelA = new Channel("Gryffindor", List.of(userA, userB, userC));
-        Channel channelB = new Channel("Slytherin", List.of(userA, userB));
+    static void messageCreateTest(MessageService messageService, Channel channel, User author) {
+        Message message = messageService.createMessage("안녕하세요.", channel.getId(), author.getId());
+        System.out.println("메시지 생성: " + message.getId());
+    }
 
-        Message messageA = new Message("Hello World!", userA, channelA);
-        Message messageB = new Message("Goodbye World!", userB, channelB);
+    public static void main(String[] args) {         // 서비스 초기화
+        // TODO
 
-        // Test createUser, findUser, findAllUser
-        userService.createUser(userA);
-        userService.createUser(userB);
-        System.out.println("=== Created Harry, Hermione ===");
-        System.out.println();
+        // Basic*Service 구현체를 초기화하세요.
+        UserService userService = new BasicUserService(new JCFUserRepository());
+        ChannelService channelService = new BasicChannelService(new FileChannelRepository());
+        MessageService messageService = new BasicMessageService(new FileMessageRepository());
 
-        UUID firstId = userA.getId();
-        System.out.println("Harry's UUID: " + firstId);
-        System.out.println("This UUID owner: " + userService.findUser(userA.getId()).getName());
-        System.out.println();
+        // 셋업
+        User user = setupUser(userService);
+        Channel channel = setupChannel(channelService);
 
-        UUID channelId = channelA.getId();
-        System.out.println("Gryffindor's UUID: " + channelId);
-        System.out.println();
-
-        System.out.println("=== Showing All Users ===");
-        userService.findAllUser()
-                        .forEach(System.out::println);
-        System.out.println();
-
-        // Add channels and messages
-        channelService.createChannel(channelA);
-        channelService.createChannel(channelB);
-        messageService.createMessage(messageA);
-        messageService.createMessage(messageB);
-        System.out.println("=== Add channels and Messages ===");
-        System.out.println();
-
-        System.out.println("=== Showing All Channels ===");
-        channelService.findAllChannel()
-                .forEach(System.out::println);
-        System.out.println();
-
-        System.out.println("=== Showing All Messages ===");
-        messageService.findAllMessage()
-                .forEach(System.out::println);
-        System.out.println();
-
-        // Test createUser in middle
-        userService.createUser(userC);
-        System.out.println("=== Created Ron ===");
-        System.out.println();
-
-        System.out.println("=== Showing All Users ===");
-        userService.findAllUser()
-                .forEach(System.out::println);
-        System.out.println();
-
-        // Test updateUser
-        // Test findUser, findAllUser after updateUser
-        User myUser = new User("Taehoon Kim","taehoonId", "taehoonPw", "terrypotterk@gmail.com");
-        userService.updateUser(userA, myUser);
-        System.out.println("=== Updated Harry -> Taehoon Kim ===");
-        System.out.println();
-
-        System.out.println("=== Showing All Users ===");
-        userService.findAllUser()
-                .forEach(System.out::println);
-        System.out.println();
-
-        System.out.println("Harry's UUID: " + firstId);
-        System.out.println("This UUID owner: " + userService.findUser(userA.getId()).getName());
-        System.out.println();
-
-        // Test deleteUser
-        userService.deleteUser(userB);
-        System.out.println("=== Deleted Hermione ===");
-        System.out.println();
-
-        System.out.println("=== Showing All Users ===");
-        userService.findAllUser()
-                .forEach(System.out::println);
-        System.out.println();
-
+        // 테스트
+        messageCreateTest(messageService, channel, user);
     }
 }
