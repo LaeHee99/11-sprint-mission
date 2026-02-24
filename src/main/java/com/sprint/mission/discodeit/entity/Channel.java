@@ -27,8 +27,16 @@ public class Channel extends BaseEntity {
         return this.participants;
     }
 
+    public void removeParticipant(User user) {
+        this.participants.remove(user);
+    }
+
     public List<Message> getMessages() {
         return this.messages;
+    }
+
+    public void addMessage(Message message) {
+        this.messages.add(message);
     }
 
     @Override

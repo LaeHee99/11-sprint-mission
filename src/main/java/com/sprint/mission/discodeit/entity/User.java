@@ -75,6 +75,10 @@ public class User extends BaseEntity {
         return this.messages;
     }
 
+    public void addMessage(Message message) {
+        this.messages.add(message);
+    }
+
     @Override
     public String toString() {
         return "User{" +
