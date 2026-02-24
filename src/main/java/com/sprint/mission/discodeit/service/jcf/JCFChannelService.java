@@ -11,9 +11,9 @@ public class JCFChannelService implements ChannelService {
     private final Map<UUID, Channel> data;
     private final Logger log;
 
-    public JCFChannelService() {
+    public JCFChannelService(Logger log) {
         this.data = new HashMap<>();
-        this.log = LoggerFactory.getLogger(JCFChannelService.class);
+        this.log = log;
     }
 
     @Override

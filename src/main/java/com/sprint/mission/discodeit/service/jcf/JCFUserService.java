@@ -12,9 +12,9 @@ public class JCFUserService implements UserService {
     private final Map<UUID, User> data;
     private final Logger log;
 
-    public JCFUserService() {
+    public JCFUserService(Logger log) {
         this.data = new HashMap<>();
-        this.log = LoggerFactory.getLogger(JCFUserService.class);
+        this.log = log;
     }
 
     @Override

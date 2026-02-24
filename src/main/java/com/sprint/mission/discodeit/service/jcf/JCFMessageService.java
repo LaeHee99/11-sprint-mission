@@ -17,11 +17,11 @@ public class JCFMessageService implements MessageService {
     private final ChannelService channelService;
     private final Logger log;
 
-    public JCFMessageService(UserService userService, ChannelService channelService) {
+    public JCFMessageService(UserService userService, ChannelService channelService, Logger log) {
         this.data = new HashMap<>();
         this.userService = userService;
         this.channelService = channelService;
-        this.log = LoggerFactory.getLogger(JCFMessageService.class);
+        this.log = log;
     }
 
     @Override
