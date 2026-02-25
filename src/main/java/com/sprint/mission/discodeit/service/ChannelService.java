@@ -21,4 +21,7 @@ public interface ChannelService {       // 인터페이스임. JCFChannelService
 
     // 삭제
     void delete(UUID id);
+
+    void addMember (UUID channelId, UUID memberId);
+    void removeMember (UUID channelId, UUID memberId);
 }

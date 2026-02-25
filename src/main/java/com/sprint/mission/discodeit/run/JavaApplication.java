@@ -11,9 +11,10 @@ import java.util.UUID;
 
 public class JavaApplication {
     public static void main(String[] args) {
-        JCFChannelService channelService = new JCFChannelService();
         JCFUserService userService = new JCFUserService();
+        JCFChannelService channelService = new JCFChannelService(userService);
         JCFMessageService messageService = new JCFMessageService();
+
         System.out.println("=====================userTEST===============================================");
         UUID user1 = userService.create(new User("정수용", "아하라마", "ONLINE"));
         UUID user2 = userService.create(new User("백승준", "seungman", "OFFLINE"));
@@ -48,6 +49,34 @@ public class JavaApplication {
         System.out.println("channel2 삭제 테스트/ 전체 조회 시 channel2가 없어야함");
         System.out.println(channelService.readAll());
 
+        channelService.addMember(channel1, user1);  // 채널 1에 유저 1 멤버 추가하기
+        System.out.println("채널1에 유저 1추가 id");
+        System.out.println(channelService.read(channel1).getMemberIds());
+
+
+        System.out.println("의존성 테스트, 존재하지 않는 유저, 채널 넣기");
+        try {
+            UUID testuserid = UUID.randomUUID();
+            channelService.addMember(channel1, testuserid);
+        }catch (IllegalArgumentException e){
+            System.out.println("에러 발생?"+e.getMessage());
+        }
+
+        try {
+            UUID testchannelid = UUID.randomUUID();
+            channelService.addMember(testchannelid, user1);
+        }catch (IllegalArgumentException e){
+            System.out.println("에러발생?"+e.getMessage());
+        }
+
+        System.out.println("의존성 테스트, 존재하지 않는 채널");
+        try {
+            UUID testchannelid = UUID.randomUUID();
+            channelService.removeMember(testchannelid, user1);
+        }catch (IllegalArgumentException e){
+            System.out.println("에러 발생?"+e.getMessage());
+        }
+
         System.out.println("=====================messageTEST===============================================");
         UUID message1 = messageService.create(new Message("보내는 내용", "보내는 사람", "받는 사람"));
         UUID message2 = messageService.create(new Message("send message", "sender", "receiver"));
@@ -61,8 +90,8 @@ public class JavaApplication {
         System.out.println("업데이트 테스트");
         System.out.println(messageService.read(message1));
 
-        userService.delete(message2);
+        messageService.delete(message2);
         System.out.println("message2 삭제 테스트/ 전체 조회시 message2가 없어야함");
-        System.out.println(userService.readAll());
+        System.out.println(messageService.readAll());
     }
 }
