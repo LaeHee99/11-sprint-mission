@@ -10,11 +10,10 @@ import java.util.*;
 
 public class JCFUserService implements UserService {
     private final Map<UUID, User> data;
-    private final Logger log;
+    private static final Logger log = LoggerFactory.getLogger(JCFUserService.class);
 
-    public JCFUserService(Logger log) {
+    public JCFUserService() {
         this.data = new HashMap<>();
-        this.log = log;
     }
 
     @Override
@@ -41,8 +40,7 @@ public class JCFUserService implements UserService {
 
     @Override
     public User updateUser(UUID id, String nickname, String username, String email, String password, String phoneNumber) {
-        User user = this.data.get(id);
-        if (user == null) throw new IllegalArgumentException("requested user not found. ❌");
+        User user = this.getUserById(id);
 
         if (nickname != null) user.updateNickname(nickname);
         if (username != null) user.updateUsername(username);
@@ -56,8 +54,7 @@ public class JCFUserService implements UserService {
 
     @Override
     public void deleteUser(UUID id) {
-        User user = this.data.remove(id);
-        if (user == null) throw new IllegalArgumentException("requested user not found. ❌");
+        User user = this.getUserById(id);
 
         for (Channel channel : user.getChannels()) {
             channel.removeParticipant(user);

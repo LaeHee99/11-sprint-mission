@@ -15,13 +15,12 @@ public class JCFMessageService implements MessageService {
     private final Map<UUID, Message> data;
     private final UserService userService;
     private final ChannelService channelService;
-    private final Logger log;
+    private static final Logger log = LoggerFactory.getLogger(JCFMessageService.class);
 
-    public JCFMessageService(UserService userService, ChannelService channelService, Logger log) {
+    public JCFMessageService(UserService userService, ChannelService channelService) {
         this.data = new HashMap<>();
         this.userService = userService;
         this.channelService = channelService;
-        this.log = log;
     }
 
     @Override
@@ -54,8 +53,7 @@ public class JCFMessageService implements MessageService {
 
     @Override
     public Message updateMessage(UUID id, String content) {
-        Message message = this.data.get(id);
-        if (message == null) throw new IllegalArgumentException("requested message not found. ❌");
+        Message message = this.getMessageById(id);
 
         message.updateContent(content);
 
@@ -65,8 +63,7 @@ public class JCFMessageService implements MessageService {
 
     @Override
     public void deleteMessage(UUID id) {
-        Message message = this.data.remove(id);
-        if (message == null) throw new IllegalArgumentException("requested message not found. ❌");
+        Message message = this.getMessageById(id);
 
         message.getSender().getMessages().remove(message);
         message.getChannel().getMessages().remove(message);

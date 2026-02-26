@@ -21,9 +21,9 @@ public class JavaApplication {
     private final MessageService messageService;
 
     public JavaApplication() {
-        this.userService = new JCFUserService(log);
-        this.channelService = new JCFChannelService(log);
-        this.messageService = new JCFMessageService(userService, channelService, log);
+        this.userService = new JCFUserService();
+        this.channelService = new JCFChannelService();
+        this.messageService = new JCFMessageService(userService, channelService);
     }
 
     public static void main(String[] args) {

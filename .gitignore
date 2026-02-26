@@ -42,3 +42,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### LOG Formatter ###
+src/main/resources/logback.xml
