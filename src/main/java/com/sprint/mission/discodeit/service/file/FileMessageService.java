@@ -1,73 +1,43 @@
 package com.sprint.mission.discodeit.service.file;
 import com.sprint.mission.discodeit.entity.Domain.Message;
+import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 
 import java.io.*;
 import java.util.*;
 
 public class FileMessageService implements MessageService {
-    private Map<UUID, Message> data;
+    private final MessageRepository messageRepository;
 
-    // TODO
-    // 저장(saveToFile), 불러오기 (loadFromFile) 구현
-    private void saveToFile(){
-        File file = new File("Message.ser");
-        if (!file.exists()) return;
-
-        try (FileOutputStream fos = new FileOutputStream("Message.ser");
-             ObjectOutputStream oos = new ObjectOutputStream(fos);
-        ) {
-            oos.writeObject(data);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    private void loadFromFile(){
-        try (FileInputStream fis = new FileInputStream("Message.ser");
-             ObjectInputStream ois = new ObjectInputStream(fis)) {
-            this.data = (Map<UUID, Message>) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-    public FileMessageService() {
-        this.data = new HashMap<>();
-        loadFromFile();
+    public FileMessageService(MessageRepository messageRepository) {
+        this.messageRepository = messageRepository;
     }
 
     @Override
     public UUID create(Message message) {
-        data.put(message.getId(), message);
-        saveToFile();
-        return message.getId();
+        return messageRepository.create(message);
     }
 
     @Override
     public Message read(UUID id) {
-        return data.get(id);
+        return messageRepository.read(id);
     }   // key인 id로 메세지 내용 읽기
     // 여기서 메세지는 보낸사람, 받는 사람 포함임
 
     @Override
     public List<Message> readAll(){
-        return new ArrayList<>(data.values());
+        return messageRepository.readAll();
     }   // value값들 list
 
     @Override
     public void update(UUID id, String messageContent) {
-        Message message = data.get(id);
+        Message message = messageRepository.read(id);
         message.updateContent(messageContent);
-        saveToFile();
+        messageRepository.create(message);
     }
 
     @Override
     public void delete(UUID id) {
-        data.remove(id);
-        saveToFile();
-    }
-
-    @Override
-    public String toString() {
-        return data.toString();
+        messageRepository.delete(id);
     }
 }

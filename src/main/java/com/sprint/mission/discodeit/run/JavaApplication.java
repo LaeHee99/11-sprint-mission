@@ -3,6 +3,9 @@ package com.sprint.mission.discodeit.run;
 import com.sprint.mission.discodeit.entity.Domain.Channel;
 import com.sprint.mission.discodeit.entity.Domain.Message;
 import com.sprint.mission.discodeit.entity.Domain.User;
+import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
+import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
+import com.sprint.mission.discodeit.repository.file.FileUserRepository;
 import com.sprint.mission.discodeit.service.file.FileChannelService;
 import com.sprint.mission.discodeit.service.file.FileMessageService;
 import com.sprint.mission.discodeit.service.file.FileUserService;
@@ -15,9 +18,9 @@ import java.util.UUID;
 
 public class JavaApplication {
     public static void main(String[] args) {
-        FileChannelService filechannelService = new FileChannelService();
-        FileMessageService filemessageService = new FileMessageService();
-        FileUserService fileuserService = new FileUserService();
+        FileChannelService filechannelService = new FileChannelService(new FileChannelRepository());
+        FileMessageService filemessageService = new FileMessageService(new FileMessageRepository());
+        FileUserService fileuserService = new FileUserService(new FileUserRepository());
 
         System.out.println("=====================userTEST===============================================");
         UUID user1 = fileuserService.create(new User("정수용", "아하라마", "ONLINE"));
@@ -53,7 +56,7 @@ public class JavaApplication {
         System.out.println(filechannelService.readAll());
 
 
-        System.out.println("=====================channelTEST===============================================");
+        System.out.println("=====================messageTEST===============================================");
         UUID message1 = filemessageService.create(new Message("보내는 내용","보내는이", "받는이" ));
         UUID message2 = filemessageService.create(new Message("send message", "sender", "receiver"));
         System.out.println("전체 조회/생성 테스트");
