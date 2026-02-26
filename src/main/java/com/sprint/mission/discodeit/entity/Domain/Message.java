@@ -32,6 +32,6 @@ public class Message extends BaseEntity implements Serializable {
                 ", sender='" + messageSender + '\'' +
                 ", receiver='" + messageReceiver + '\'' +
                 ", content='" + messageContent + '\'' +
-                "\n";
+                '}';
     }
 }

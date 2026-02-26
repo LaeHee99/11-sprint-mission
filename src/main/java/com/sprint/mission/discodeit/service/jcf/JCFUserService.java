@@ -7,7 +7,12 @@ import com.sprint.mission.discodeit.service.UserService;
 import java.util.*;
 
 public class JCFUserService implements UserService {
-    private final Map<UUID, User> data = new HashMap<>();
+    private final Map<UUID, User> data;
+
+
+    public JCFUserService(){
+        this.data = new HashMap<>();
+    }
 
     @Override
     public UUID create(User user) {

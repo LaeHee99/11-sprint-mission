@@ -4,11 +4,17 @@ import com.sprint.mission.discodeit.entity.Domain.Channel;
 import com.sprint.mission.discodeit.entity.Domain.Message;
 import com.sprint.mission.discodeit.entity.Domain.User;
 import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.service.UserService;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class JCFMessageService implements MessageService {
-    private final Map<UUID, Message> data = new HashMap<>();
+    private final Map<UUID, Message> data;
+
+    public JCFMessageService() {
+        this.data = new HashMap<>();
+    }
 
     @Override
     public UUID create(Message message) {
