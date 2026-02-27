@@ -3,9 +3,6 @@ package com.sprint.mission.discodeit;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
@@ -16,14 +13,17 @@ import java.util.List;
 
 public class JavaApplication {
     private final Logger log = LoggerFactory.getLogger(JavaApplication.class);
-    private final UserService userService;
-    private final ChannelService channelService;
-    private final MessageService messageService;
+    private final JCFUserService userService;
+    private final JCFChannelService channelService;
+    private final JCFMessageService messageService;
 
     public JavaApplication() {
         this.userService = new JCFUserService();
         this.channelService = new JCFChannelService();
         this.messageService = new JCFMessageService(userService, channelService);
+
+        this.channelService.setUserService(userService);
+        this.channelService.setMessageService(messageService);
     }
 
     public static void main(String[] args) {
@@ -77,6 +77,7 @@ public class JavaApplication {
         log.info("Trying to find deleted user...");
         try {
             this.userService.getUserById(user2.getId());
+            log.info("Deleted user still existed. ❌");
         } catch (IllegalArgumentException e) {
             log.info("Expected exception caught. ✅ -> {}", e.getMessage());
         }
@@ -123,6 +124,7 @@ public class JavaApplication {
         log.info("Trying to find deleted channel...");
         try {
             this.channelService.getChannelById(channel2.getId());
+            log.info("Deleted channel still existed. ❌");
         } catch (IllegalArgumentException e) {
             log.info("Expected exception caught. ✅ -> {}", e.getMessage());
         }
@@ -169,9 +171,63 @@ public class JavaApplication {
         log.info("Trying to find deleted message...");
         try {
             this.messageService.getMessageById(message2.getId());
+            log.info("Deleted message still existed. ❌");
         } catch (IllegalArgumentException e) {
             log.info("Expected exception caught. ✅ -> {}", e.getMessage());
         }
+        log.info("--------------------------------------------------");
+
+        // Domain Relation Test
+        log.info("4. Domain Relation Test:");
+
+        // join channel test
+        log.info(">> 4-1. Joining Channel...");
+        log.info("Target Channel ID: {}, Joining User ID: {}", channel1.getId(), user1.getId());
+        this.channelService.joinChannel(channel1.getId(), user1.getId());
+        log.info("joined? channel: {}, user: {}", channel1.getParticipants().contains(user1), user1.getChannels().contains(channel1));
+        log.info("--------------------------------------------------");
+
+        // leave channel test
+        log.info(">> 4-2. Leaving Channel...");
+        log.info("Target Channel ID: {}, Leaving User ID: {}", channel1.getId(), user1.getId());
+        this.channelService.leaveChannel(channel1.getId(), user1.getId());
+        log.info("left? channel: {}, user: {}", !channel1.getParticipants().contains(user1), !user1.getChannels().contains(channel1));
+        log.info("--------------------------------------------------");
+
+        // send message test
+        log.info(">> 4-3. Sending Message...");
+        log.info("Target Channel ID: {}, Sender ID: {}", channel1.getId(), user1.getId());
+        Message message4 = this.messageService.createMessage("Hello, this is John!", user1.getId(), channel1.getId());
+        log.info("sent? channel: {}, user: {}, message: {}", channel1.getMessages().contains(message4), user1.getMessages().contains(message4), message4.getChannel().equals(channel1) && message4.getSender().equals(user1));
+        log.info("--------------------------------------------------");
+
+        // delete user test
+        log.info(">> 4-4. Deleting User...");
+        this.channelService.joinChannel(channel3.getId(), user3.getId());
+        log.info("Target User ID: {}", user3.getId());
+        this.userService.deleteUser(user3.getId());
+        log.info("deleted? channel participants: {}", !channel3.getParticipants().contains(user3));
+        log.info("--------------------------------------------------");
+
+        // delete channel test
+        log.info(">> 4-5. Deleting Channel...");
+        this.channelService.joinChannel(channel3.getId(), user1.getId());
+        Message message5 = this.messageService.createMessage("Hello, this is John!", user1.getId(), channel3.getId());
+        log.info("Target Channel ID: {}", channel3.getId());
+        this.channelService.deleteChannel(channel3.getId());
+        try {
+            this.messageService.getMessageById(message5.getId());
+            log.info("deleted? user channels: {}, message: false", !user1.getChannels().contains(channel3));
+        } catch (IllegalArgumentException e) {
+            log.info("deleted? user channels: {}, message: true", !user1.getChannels().contains(channel3));
+        }
+        log.info("--------------------------------------------------");
+
+        // delete message test
+        log.info(">> 4-6. Deleting Message...");
+        log.info("Target Message ID: {}", message1.getId());
+        this.messageService.deleteMessage(message1.getId());
+        log.info("deleted? user messages: {}, channel messages: {}", !user1.getMessages().contains(message1), !channel1.getMessages().contains(message1));
         log.info("--------------------------------------------------");
 
         log.info("Discodeit Service Test Finished. ✅");

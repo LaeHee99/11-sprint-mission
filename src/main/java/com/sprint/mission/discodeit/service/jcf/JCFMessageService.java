@@ -68,6 +68,8 @@ public class JCFMessageService implements MessageService {
         message.getSender().getMessages().remove(message);
         message.getChannel().getMessages().remove(message);
 
+        this.data.remove(id);
+
         log.info("Message has been deleted successfully. ✅ [ID: {}]", id);
     }
 }

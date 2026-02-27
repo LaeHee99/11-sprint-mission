@@ -60,6 +60,8 @@ public class JCFUserService implements UserService {
             channel.removeParticipant(user);
         }
 
+        this.data.remove(id);
+
         log.info("{} has been deleted successfully and left from all channels. ✅ [ID: {}]", user.getNickname(), id);
     }
 }
