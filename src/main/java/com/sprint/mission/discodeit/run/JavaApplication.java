@@ -10,172 +10,68 @@ import com.sprint.mission.discodeit.service.file.FileChannelService;
 import com.sprint.mission.discodeit.service.file.FileMessageService;
 import com.sprint.mission.discodeit.service.file.FileUserService;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 
 public class JavaApplication {
-    public static void main(String[] args) {
-        restart(); // 시작할때 파일 초기화
+    public static void main(String[] args) throws IOException {
+//        restart(); // 시작할 때 파일 초기화 (원할때 주석제거해서 초기화하기)
 
         FileChannelService filechannelService = new FileChannelService(new FileChannelRepository());
         FileMessageService filemessageService = new FileMessageService(new FileMessageRepository());
         FileUserService fileuserService = new FileUserService(new FileUserRepository());
 
-        System.out.println("=====================[userTEST]===============================================");
-        UUID user1 = fileuserService.create(new User("정수용", "아하라마", "ONLINE"));
-        UUID user2 = fileuserService.create(new User("백승준", "seungman", "OFFLINE"));
-        System.out.println("[전체 조회/생성 테스트]");
-        fileuserService.readAll()
-                        .forEach(System.out::println);
+        // 헷갈리는거 정리해놓기
+        // FileUserService, FileChannelService, FileMessageService  에다가 .create, .read, .readAll, .update, .delete하기
+        // user     -   FileUserService.create(new User(이름, 닉네임, 온오프라인))/ .read(id) / .readAll - stream쓰면 배열로 출력안됨
+        //              .update(id, 이름, 닉네임, 온오프라인) / .delete(id)임
+        // channel  -   FileChannelService.create(new Channel(채널명, 채널주소)) / .read(id) / .readAll /
+        //              .update(id, 채널명, 채널주소) / .delete(id)
+        // message  -   FileMessageService.create(new Message(내용, 보낸이, 받는이)) / .read(id) / .readAll /
+        //              .update(id, 내용) / .delete(id)
 
-        System.out.println("\n[user1 단건 조회]");
-        System.out.println(fileuserService.read(user1));
 
-        fileuserService.update(user1, "정수용 업데이트", "아하라마 업데이트", "ONLINE");
-        System.out.println("\n[업데이트 테스트]");
-        System.out.println(fileuserService.read(user1));
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        fileuserService.delete(user2);
-        System.out.println("\n[user2 삭제테스트/ 전체 조회시 user1만 있어야함]");
-        System.out.println(fileuserService.readAll());
-        System.out.println();
-        System.out.println("=====================channelTEST===============================================");
-        UUID channel1 = filechannelService.create(new Channel("정수용님의 채널", "aaaaaaaaaaaaaaa"));
-        UUID channel2 = filechannelService.create(new Channel("백승준님의 채널", "ccccccccccccc"));
-        System.out.println("[전체 조회/생성 테스트]");
-        filechannelService.readAll()
-                        .forEach(System.out::println);
 
-        System.out.println("\n[channel1 단건 조회]");
-        System.out.println(filechannelService.read(channel1));
+        // TODO
+        // UUID 목록 기억안나니까 출력하나 만들기 -- O
+        while (true) {      // while 안에서 user, channel, message 각각 만들기 > 그래야 break; 했을때 돌아옴.
+            System.out.println("======================================");
+            System.out.println("원하는 기능을 선택하세요");
+            System.out.println("1. User");
+            System.out.println("2. Channel");
+            System.out.println("3. Message");
+            System.out.println("4. 저장된 UUID목록");
+            System.out.println("5. Exit");
+            System.out.print("선택: ");
 
-        filechannelService.update(channel1, "채널 업데이트", "채널주소 업데이트");
-        System.out.println("\n[업데이트 테스트]");
-        System.out.println(filechannelService.read(channel1));
+            String input = br.readLine();
+            if (input == null) continue;
+            input = input.trim();
 
-        filechannelService.delete(channel2);
-        System.out.println("\n[channel2 삭제 테스트/ 전체 조회 시 channel2가 없어야함]");
-        System.out.println(filechannelService.readAll());
-        System.out.println();
-
-        System.out.println("=====================messageTEST===============================================");
-        UUID message1 = filemessageService.create(new Message("보내는 내용", "보내는이", "받는이"));
-        UUID message2 = filemessageService.create(new Message("send message", "sender", "receiver"));
-        System.out.println("[전체 조회/생성 테스트]");
-        filemessageService.readAll()
-                .forEach(System.out::println);
-
-        System.out.println("\n[message1 단건 조회]");
-        System.out.println(filemessageService.read(message1));
-
-        filemessageService.update(message1, "업데이트된 메세지");
-        System.out.println("\n[업데이트 테스트]");
-        System.out.println(filemessageService.read(message1));
-
-        filemessageService.delete(message2);
-        System.out.println("\n[message2 삭제 테스트/ 전체 조회시 message2가 없어야함]");
-        System.out.println(filemessageService.readAll());
-        System.out.println();
-        System.out.println("=====================User 예외TEST===============================================");
-        testUserValidation(fileuserService);
-        testChannelValidation(filechannelService);
-        testMessageValidation(filemessageService);
+            if (input.equals("1")) {
+                handleUserMenu(br, fileuserService);
+            } else if (input.equals("2")) {
+                handleChannelMenu(br, filechannelService);
+            } else if (input.equals("3")) {
+                handleMessageMenu(br, filemessageService);
+            } else if (input.equals("4")) { //UUID 목록
+                printAllIds(fileuserService, filechannelService, filemessageService);
+            } else if (input.equals("5")) {
+                System.out.println("프로그램을 종료합니다.");
+                break;
+            } else {
+                System.out.println("잘못된 입력입니다. 다시 선택하세요.");
+            }
+        }
     }
 
-    private static void testUserValidation(FileUserService userService) {
-        System.out.print("\n=====[User 예외 처리 테스트]=====");
-        // (1) 중복 유저명 테스트
-        try {
-            System.out.println("\n[중복 유저명 테스트]");
-            User u = new User("중복유저테스트", "nick", "ONLINE");
-            UUID id1 = userService.create(u);
-            System.out.println("첫 생성 성공: " + userService.read(id1));
-
-            // 같은 이름으로 다시 생성 → IllegalArgumentException 예상
-            userService.create(new User("중복유저테스트", "다른닉", "OFFLINE"));
-            System.out.println("여기까지 오면 안 됨 (예외가 안 난 것)");
-        } catch (IllegalArgumentException e) {
-            System.out.println("예상대로 예외 발생: " + e.getMessage());
-        }
-        // (2) null 유저명 테스트
-        try {
-            System.out.println("\n[null 유저명 테스트]");
-            userService.create(new User(null, "nick", "ONLINE"));
-            System.out.println("여기까지 오면 안 됨 (예외가 안 난 것)");
-        } catch (IllegalArgumentException e) {
-            System.out.println("예상대로 예외 발생: " + e.getMessage());
-        }
-        // (3) blank 유저명 테스트
-        try {
-            System.out.println("\n[blank 유저명 테스트]");
-            userService.create(new User("   ", "nick", "ONLINE"));
-            System.out.println("여기까지 오면 안 됨 (예외가 안 난 것)");
-        } catch (IllegalArgumentException e) {
-            System.out.println("예상대로 예외 발생: " + e.getMessage());
-        }
-        System.out.println("===== [User 예외 처리 테스트 끝] =====\n");
-    }
-
-    private static void testChannelValidation(FileChannelService channelService) {
-        System.out.print("\n======[Channel 예외 처리 테스트============");
-        // (1) 중복 채널명 테스트
-        try {
-            System.out.println("\n[중복 채널명 테스트]");
-            Channel c = new Channel("중복채널테스트", "ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ");
-            UUID id2 = channelService.create(c);
-            System.out.println("첫 생성 성공: " + channelService.read(id2));
-            // 같은 이름으로 다시 생성 → IllegalArgumentException 예상
-            channelService.create(new Channel("중복채널테스트", "ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ"));
-            System.out.println("여기까지 오면 안 됨 (예외가 안 난 것)");
-
-        } catch (IllegalArgumentException e) {
-            System.out.println("예상대로 예외 발생: " + e.getMessage());
-        }
-        // (2) null 채널 테스트
-        try {
-            System.out.println("\n[null 채널명 테스트]");
-            channelService.create(new Channel(null, "aaaaaaaaa"));
-            System.out.println("여기까지 오면 안 됨 (예외가 안 난 것)");
-        } catch (IllegalArgumentException e) {
-            System.out.println("예상대로 예외 발생: " + e.getMessage());
-        }
-
-        // (3) blank 채널 테스트
-        try {
-            System.out.println("\n[blank 채널명 테스트]");
-            channelService.create(new Channel("   ", "aaaaaaaaaaaa"));
-            System.out.println("여기까지 오면 안 됨 (예외가 안 난 것)");
-        } catch (IllegalArgumentException e) {
-            System.out.println("예상대로 예외 발생: " + e.getMessage());
-        }
-        System.out.println("===== [Channel 예외 처리 테스트 끝] =====\n");
-    }
-
-    private static void testMessageValidation(FileMessageService messageService) {
-        System.out.print("\n======[Message 예외 처리 테스트============");
-        // (1) null 메세지 테스트
-        try {
-            System.out.println("\n[null 메세지 테스트]");
-            messageService.create(new Message(null, "sender", "receiver"));
-            System.out.println("여기까지 오면 안 됨 (예외가 안 난 것)");
-        } catch (IllegalArgumentException e) {
-            System.out.println("예상대로 예외 발생: " + e.getMessage());
-        }
-
-        // (2) blank 메세지 테스트
-        try {
-            System.out.println("\n[blank 채널명 테스트]");
-            messageService.create(new Message("   ", "sender", "receiver"));
-            System.out.println("여기까지 오면 안 됨 (예외가 안 난 것)");
-        } catch (IllegalArgumentException e) {
-            System.out.println("예상대로 예외 발생: " + e.getMessage());
-        }
-        System.out.println("===== [Message 예외 처리 테스트 끝] =====\n");
-    }
-
-    private static void restart() {
+    private static void restart() {     // 실행할때마다 초기화 시키기
         try {
             Files.deleteIfExists(Path.of("users.ser"));
             Files.deleteIfExists(Path.of("Channel.ser"));
@@ -184,10 +80,285 @@ public class JavaApplication {
             throw new RuntimeException("데이터 초기화에 실패했습니다.", e);
         }
     }
+
+    private static void handleUserMenu(BufferedReader br, FileUserService userService) throws IOException {
+        while (true) {
+            System.out.println("----- [User 메뉴] -----");
+            System.out.println("1. User 생성");
+            System.out.println("2. User 단건 조회");
+            System.out.println("3. User 전체 조회");
+            System.out.println("4. User 수정");
+            System.out.println("5. User 삭제");
+            System.out.println("6. User UUID 목록");
+            System.out.println("0. 뒤로가기");
+            System.out.print("선택: ");
+
+            String input = br.readLine();
+            if (input == null) continue;    // null이면 다시 물어보기
+            input = input.trim();           // 공백 없이 입력받기
+
+            try {
+                if (input.equals("1")) { // create
+                    System.out.print("이름: ");
+                    String name = br.readLine();
+                    System.out.print("닉네임: ");
+                    String nickname = br.readLine();
+                    System.out.print("상태(ONLINE/OFFLINE 등): ");
+                    String status = br.readLine();
+
+                    UUID id = userService.create(new User(name, nickname, status));
+                    System.out.println("생성 완료. ID = " + id);
+
+                } else if (input.equals("2")) { // read
+                    System.out.print("조회할 User ID(UUID): ");
+                    String idStr = br.readLine();
+                    UUID id = UUID.fromString(idStr);   // UUID를 String 형으로 입력받기
+                    User user = userService.read(id);
+                    System.out.println(user != null ? user : "해당 ID의 User가 없습니다."); // null아니면 user, null이면 문자 반환
+
+                } else if (input.equals("3")) { // readAll
+                    System.out.println("[User 전체 조회]");
+                    userService.readAll().forEach(System.out::println); // 배열로 출력되니까 안이쁘네..
+
+                } else if (input.equals("4")) { // update
+                    System.out.print("수정할 User ID(UUID): ");
+                    String idStr = br.readLine();
+                    UUID id = UUID.fromString(idStr);
+
+                    System.out.print("새 이름: ");
+                    String name = br.readLine();
+                    System.out.print("새 닉네임: ");
+                    String nickname = br.readLine();
+                    System.out.print("새 상태: ");
+                    String status = br.readLine();
+
+                    userService.update(id, name, nickname, status);
+                    System.out.println("수정 완료.");
+                    System.out.println("수정 결과: " + userService.read(id));
+
+                } else if (input.equals("5")) { // delete
+                    System.out.print("삭제할 User ID(UUID): ");
+                    String idStr = br.readLine();
+                    UUID id = UUID.fromString(idStr);
+                    userService.delete(id);
+                    System.out.println("삭제 완료.");
+
+                } else if (input.equals("6")) {
+                    printUser(userService);
+                } else if (input.equals("0")) { // back
+                    System.out.println("User 메뉴를 종료합니다.");
+                    break;
+
+                } else {
+                    System.out.println("잘못된 입력입니다. 다시 선택하세요.");
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("예외 발생: null, blank 불가");
+            } catch (Exception e) {
+                System.out.println("알 수 없는 오류: " + e.getMessage());
+            }
+        }
+    }
+
+    private static void handleChannelMenu(BufferedReader br, FileChannelService channelService) throws IOException {
+        while (true) {
+            System.out.println("----- [Channel 메뉴] -----");
+            System.out.println("1. Channel 생성");
+            System.out.println("2. Channel 단건 조회");
+            System.out.println("3. Channel 전체 조회");
+            System.out.println("4. Channel 수정");
+            System.out.println("5. Channel 삭제");
+            System.out.println("6. Channel UUID 목록");
+            System.out.println("0. 뒤로가기");
+            System.out.print("선택: ");
+
+            String input = br.readLine();
+            if (input == null) continue;
+            input = input.trim();
+
+            try {
+                if (input.equals("1")) { // create
+                    System.out.print("채널 이름: ");
+                    String name = br.readLine();
+                    System.out.print("채널 설명: ");
+                    String desc = br.readLine();
+
+                    UUID id = channelService.create(new Channel(name, desc));
+                    System.out.println("생성 완료. ID = " + id);
+
+                } else if (input.equals("2")) { // read
+                    System.out.print("조회할 Channel ID(UUID): ");
+                    String idStr = br.readLine();
+                    UUID id = UUID.fromString(idStr);
+                    Channel channel = channelService.read(id);
+                    System.out.println(channel != null ? channel : "해당 ID의 Channel이 없습니다.");
+
+                } else if (input.equals("3")) { // readAll
+                    System.out.println("[Channel 전체 조회]");
+                    channelService.readAll().forEach(System.out::println);
+
+                } else if (input.equals("4")) { // update
+                    System.out.print("수정할 Channel ID(UUID): ");
+                    String idStr = br.readLine();
+                    UUID id = UUID.fromString(idStr);
+
+                    System.out.print("새 채널 이름: ");
+                    String name = br.readLine();
+                    System.out.print("새 채널 설명: ");
+                    String desc = br.readLine();
+
+                    channelService.update(id, name, desc);
+                    System.out.println("수정 완료.");
+                    System.out.println("수정 결과: " + channelService.read(id));
+
+                } else if (input.equals("5")) { // delete
+                    System.out.print("삭제할 Channel ID(UUID): ");
+                    String idStr = br.readLine();
+                    UUID id = UUID.fromString(idStr);
+                    channelService.delete(id);
+                    System.out.println("삭제 완료.");
+
+                }else if (input.equals("6")) {
+                    printChannel(channelService);
+                } else if (input.equals("0")) { // back
+                    System.out.println("Channel 메뉴를 종료합니다.");
+                    break;
+
+                } else {
+                    System.out.println("잘못된 입력입니다. 다시 선택하세요.");
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("예외 발생: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("알 수 없는 오류: " + e.getMessage());
+            }
+        }
+    }
+
+    private static void handleMessageMenu(BufferedReader br, FileMessageService messageService) throws IOException {
+        while (true) {
+            System.out.println("----- [Message 메뉴] -----");
+            System.out.println("1. Message 생성");
+            System.out.println("2. Message 단건 조회");
+            System.out.println("3. Message 전체 조회");
+            System.out.println("4. Message 수정");
+            System.out.println("5. Message 삭제");
+            System.out.println("6. Message UUID 목록");
+            System.out.println("0. 뒤로가기");
+            System.out.print("선택: ");
+
+            String input = br.readLine();
+            if (input == null) continue;
+            input = input.trim();
+
+            try {
+                if (input.equals("1")) { // create
+                    System.out.print("내용: ");
+                    String content = br.readLine();
+                    System.out.print("보내는이: ");
+                    String sender = br.readLine();
+                    System.out.print("받는이: ");
+                    String receiver = br.readLine();
+
+                    UUID id = messageService.create(new Message(content, sender, receiver));
+                    System.out.println("생성 완료. ID = " + id);
+
+                } else if (input.equals("2")) { // read
+                    System.out.print("조회할 Message ID(UUID): ");
+                    String idStr = br.readLine();
+                    UUID id = UUID.fromString(idStr);
+                    Message message = messageService.read(id);
+                    System.out.println(message != null ? message : "해당 ID의 Message가 없습니다.");
+
+                } else if (input.equals("3")) { // readAll
+                    System.out.println("[Message 전체 조회]");
+                    messageService.readAll().forEach(System.out::println);
+
+                } else if (input.equals("4")) { // update
+                    System.out.print("수정할 Message ID(UUID): ");
+                    String idStr = br.readLine();
+                    UUID id = UUID.fromString(idStr);
+
+                    System.out.print("새 내용: ");
+                    String content = br.readLine();
+
+                    messageService.update(id, content);
+                    System.out.println("수정 완료.");
+                    System.out.println("수정 결과: " + messageService.read(id));
+
+                } else if (input.equals("5")) { // delete
+                    System.out.print("삭제할 Message ID(UUID): ");
+                    String idStr = br.readLine();
+                    UUID id = UUID.fromString(idStr);
+                    messageService.delete(id);
+                    System.out.println("삭제 완료.");
+
+                }else if (input.equals("6")) {
+                    printMessage(messageService);
+                } else if (input.equals("0")) { // back
+                    System.out.println("Message 메뉴를 종료합니다.");
+                    break;
+
+                } else {
+                    System.out.println("잘못된 입력입니다. 다시 선택하세요.");
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("예외 발생: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("알 수 없는 오류: " + e.getMessage());
+            }
+        }
+    }
+
+    private static void printAllIds(FileUserService userService,
+                                    FileChannelService channelService,
+                                    FileMessageService messageService) {
+        System.out.println("===== [현재 저장된 전체 ID 목록] =====");
+
+        System.out.println("\n[User ID]");
+        userService.readAll().forEach(u ->
+                System.out.println("id=" + u.getId() + " | name=" + u.getUserName())
+        );
+
+        System.out.println("\n[Channel ID]");
+        channelService.readAll().forEach(c ->
+                System.out.println("id=" + c.getId() + " | name=" + c.getChannelName())
+        );
+
+        System.out.println("\n[Message ID]");
+        messageService.readAll().forEach(m ->
+                System.out.println("id=" + m.getId() + " | sender=" + m.getSender() + " | receiver=" + m.getReceiver())
+        );
+        System.out.println("====================================\n");
+    }
+
+    public static void printUser(FileUserService userService){
+        System.out.println("==== [현재 저장된 USER ID 목록] ====");
+        System.out.println("\n[User ID]");
+        userService.readAll().forEach(u ->
+                System.out.println("id=" + u.getId() + " | name=" + u.getUserName())
+        );
+        System.out.println("====================================\n");
+    }
+
+    public static void printChannel(FileChannelService channelService){
+        System.out.println("==== [현재 저장된 CHANNEL ID 목록] ====");
+        System.out.println("\n[Channel ID]");
+        channelService.readAll().forEach(c ->
+                System.out.println("id=" + c.getId() + " | name=" + c.getChannelName())
+        );
+        System.out.println("====================================\n");
+    }
+
+    public static void printMessage(FileMessageService messageService){
+        System.out.println("==== [현재 저장된 Message ID 목록] ====");
+        System.out.println("\n[Message ID]");
+        messageService.readAll().forEach(m ->
+                System.out.println("id=" + m.getId() + " | sender=" + m.getSender() + " | receiver=" + m.getReceiver())
+        );
+        System.out.println("====================================\n");
+    }
 }
-
-
-
 
 
 
