@@ -27,11 +27,13 @@ public class Message extends BaseEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "Message{" +
-                "id=" + id +
-                ", sender='" + messageSender + '\'' +
-                ", receiver='" + messageReceiver + '\'' +
-                ", content='" + messageContent + '\'' +
-                '}';
+        return "Message ---- [" +
+                "id = " + id +
+                "] [sender='" + messageSender + '\'' +
+                "], [receiver='" + messageReceiver + '\'' +
+                "], [content='" + messageContent + "\']" +
+                " [createdAt='" + createdAt + "']" +
+                " [updatedAt='" + updatedAt + "']";
+
     }
 }

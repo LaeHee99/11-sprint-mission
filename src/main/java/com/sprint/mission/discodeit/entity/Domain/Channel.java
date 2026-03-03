@@ -24,6 +24,9 @@ public class Channel extends BaseEntity implements Serializable {
     @Override
     public String toString() {
         return
-                "Channel{channelName='" + channelName + "', channelDescription='" + channelDescription + "'}\n";
+                "Channel ---- [channelName='" + channelName + "'] " +
+                        "[channelDescription='" + channelDescription + "']" +
+                        " [createdAt='" + createdAt + "']" +
+                        " [updatedAt='" + updatedAt + "']";
     }
 }

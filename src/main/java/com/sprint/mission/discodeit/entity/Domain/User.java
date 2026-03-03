@@ -28,12 +28,12 @@ public class User extends BaseEntity implements Serializable {
     }
 
     @Override
-    public String toString() {return "User{" +
-            "id=" + id +
-            ", userName='" + userName + '\'' +
-            ", userNickname='" + userNickname + '\'' +
-            ", userStatus='" + userStatus + '\'' +
-            ", createdAt=" + createdAt +
-            ", updatedAt=" + updatedAt +
-            "}\n";}
+    public String toString() {return "User ---- " +
+            "[id=" + id +
+            "] [userName='" + userName + '\'' +
+            "] [userNickname='" + userNickname + '\'' +
+            "] [userStatus='" + userStatus + '\'' +
+            "] [createdAt=" + createdAt + '\'' +
+            "] [updatedAt=" + updatedAt + '\'' +
+            "]";}
 }

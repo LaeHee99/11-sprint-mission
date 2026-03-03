@@ -12,7 +12,6 @@ public class FileMessageRepository implements MessageRepository {
     // TODO
     // 저장(saveToFile), 불러오기 (loadFromFile) 구현
     private void saveToFile(){
-
         try (FileOutputStream fos = new FileOutputStream("Message.ser");
              ObjectOutputStream oos = new ObjectOutputStream(fos);
         ) {
@@ -22,7 +21,11 @@ public class FileMessageRepository implements MessageRepository {
         }
     }
     private void loadFromFile(){
-        try (FileInputStream fis = new FileInputStream("Message.ser");
+        File file = new File("Message.ser");
+        if (!file.exists()) {
+            return;
+        }
+        try (FileInputStream fis = new FileInputStream(file);
              ObjectInputStream ois = new ObjectInputStream(fis)) {
             this.data = (Map<UUID, Message>) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
