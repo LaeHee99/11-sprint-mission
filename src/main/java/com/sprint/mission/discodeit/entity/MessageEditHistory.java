@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
 public class MessageEditHistory extends BaseEntity {
+    private static final long serialVersionUID = 1L;
     private String previousContent;
     private long editedAt;
 

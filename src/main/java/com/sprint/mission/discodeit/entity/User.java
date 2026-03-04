@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User extends BaseEntity {
+    private static final long serialVersionUID = 1L;
     private String name;
     private String email;
     private List<Message> sentMessages;
