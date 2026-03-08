@@ -135,6 +135,8 @@ public class JavaApplication {
 
         // create messages
         log.info(">> 3-1. Creating Messages...");
+        this.channelService.joinChannel(channel1.getId(), user1.getId());
+        this.channelService.joinChannel(channel1.getId(), user3.getId());
         Message message1 = this.messageService.createMessage("Hello, this is John!", user1.getId(), channel1.getId());
         Message message2 = this.messageService.createMessage("Hi John, this is Alice!", user3.getId(), channel1.getId());
         Message message3 = this.messageService.createMessage("Great, let’s start at 8 PM. I will upload the material soon.", user1.getId(), channel1.getId());
@@ -180,18 +182,18 @@ public class JavaApplication {
         // Domain Relation Test
         log.info("4. Domain Relation Test:");
 
-        // join channel test
-        log.info(">> 4-1. Joining Channel...");
-        log.info("Target Channel ID: {}, Joining User ID: {}", channel1.getId(), user1.getId());
-        this.channelService.joinChannel(channel1.getId(), user1.getId());
-        log.info("joined? channel: {}, user: {}", channel1.getParticipants().contains(user1), user1.getChannels().contains(channel1));
-        log.info("--------------------------------------------------");
-
         // leave channel test
-        log.info(">> 4-2. Leaving Channel...");
+        log.info(">> 4-1. Leaving Channel...");
         log.info("Target Channel ID: {}, Leaving User ID: {}", channel1.getId(), user1.getId());
         this.channelService.leaveChannel(channel1.getId(), user1.getId());
         log.info("left? channel: {}, user: {}", !channel1.getParticipants().contains(user1), !user1.getChannels().contains(channel1));
+        log.info("--------------------------------------------------");
+
+        // join channel test
+        log.info(">> 4-2. Joining Channel...");
+        log.info("Target Channel ID: {}, Joining User ID: {}", channel1.getId(), user1.getId());
+        this.channelService.joinChannel(channel1.getId(), user1.getId());
+        log.info("joined? channel: {}, user: {}", channel1.getParticipants().contains(user1), user1.getChannels().contains(channel1));
         log.info("--------------------------------------------------");
 
         // send message test
@@ -228,6 +230,182 @@ public class JavaApplication {
         log.info("Target Message ID: {}", message1.getId());
         this.messageService.deleteMessage(message1.getId());
         log.info("deleted? user messages: {}, channel messages: {}", !user1.getMessages().contains(message1), !channel1.getMessages().contains(message1));
+        log.info("--------------------------------------------------");
+
+        // Additional Business Logic Test
+        log.info("5. Additional Business Logic Test:");
+
+        // duplicate channel participation test
+        log.info(">> 5-1. Duplicate Channel Participation...");
+        log.info("Target Channel ID: {}, User ID: {}", channel1.getId(), user1.getId());
+        try {
+            this.channelService.joinChannel(channel1.getId(), user1.getId());
+            log.info("Duplicate participation allowed. ❌");
+        } catch (IllegalArgumentException e) {
+            log.info("Expected exception caught. ✅ -> {}", e.getMessage());
+        }
+        log.info("--------------------------------------------------");
+
+        // empty user nickname test
+        log.info(">> 5-2. Empty User Nickname...");
+        try {
+            this.userService.createUser("", "username", "email@codeit.com", "password", "000-000-0000");
+            log.info("Empty nickname user created. ❌");
+        } catch (IllegalArgumentException e) {
+            log.info("Expected exception caught. ✅ -> {}", e.getMessage());
+        }
+        log.info("--------------------------------------------------");
+
+        // empty user username test
+        log.info(">> 5-3. Empty User Username...");
+        try {
+            this.userService.createUser("nickname", "", "email@codeit.com", "password", "000-000-0000");
+            log.info("Empty username user created. ❌");
+        } catch (IllegalArgumentException e) {
+            log.info("Expected exception caught. ✅ -> {}", e.getMessage());
+        }
+        log.info("--------------------------------------------------");
+
+        // duplicate username test
+        log.info(">> 5-4. Duplicate Username...");
+        try {
+            this.userService.createUser("newuser", "johnupdated", "newemail@codeit.com", "password", "000-000-0000");
+            log.info("Duplicate username user created. ❌");
+        } catch (IllegalArgumentException e) {
+            log.info("Expected exception caught. ✅ -> {}", e.getMessage());
+        }
+        log.info("--------------------------------------------------");
+
+        // empty user email test
+        log.info(">> 5-5. Empty User Email...");
+        try {
+            this.userService.createUser("nickname", "username", "", "password", "000-000-0000");
+            log.info("Empty email user created. ❌");
+        } catch (IllegalArgumentException e) {
+            log.info("Expected exception caught. ✅ -> {}", e.getMessage());
+        }
+        log.info("--------------------------------------------------");
+
+        // invalid email format test
+        log.info(">> 5-6. Invalid Email Format...");
+        try {
+            this.userService.createUser("nickname", "username", "invalid-email", "password", "000-000-0000");
+            log.info("Invalid email user created. ❌");
+        } catch (IllegalArgumentException e) {
+            log.info("Expected exception caught. ✅ -> {}", e.getMessage());
+        }
+        log.info("--------------------------------------------------");
+
+        // duplicate email test
+        log.info(">> 5-7. Duplicate Email...");
+        try {
+            this.userService.createUser("newuser", "newusername", "johnupdated@codeit.com", "password", "000-000-0000");
+            log.info("Duplicate email user created. ❌");
+        } catch (IllegalArgumentException e) {
+            log.info("Expected exception caught. ✅ -> {}", e.getMessage());
+        }
+        log.info("--------------------------------------------------");
+
+        // empty user password test
+        log.info(">> 5-8. Empty User Password...");
+        try {
+            this.userService.createUser("nickname", "username", "email@codeit.com", "", "000-000-0000");
+            log.info("Empty password user created. ❌");
+        } catch (IllegalArgumentException e) {
+            log.info("Expected exception caught. ✅ -> {}", e.getMessage());
+        }
+        log.info("--------------------------------------------------");
+
+        // invalid password length test
+        log.info(">> 5-9. Invalid Password Length...");
+        try {
+            this.userService.createUser("nickname", "username", "email@codeit.com", "short", "000-000-0000");
+            log.info("Invalid password user created. ❌");
+        } catch (IllegalArgumentException e) {
+            log.info("Expected exception caught. ✅ -> {}", e.getMessage());
+        }
+        log.info("--------------------------------------------------");
+
+        // empty user phone number test
+        log.info(">> 5-10. Empty User PhoneNumber...");
+        try {
+            this.userService.createUser("nickname", "username", "email@codeit.com", "password", "");
+            log.info("Empty phone number user created. ❌");
+        } catch (IllegalArgumentException e) {
+            log.info("Expected exception caught. ✅ -> {}", e.getMessage());
+        }
+        log.info("--------------------------------------------------");
+
+        // invalid phone number format test
+        log.info(">> 5-11. Invalid PhoneNumber Format...");
+        try {
+            this.userService.createUser("nickname", "username", "email@codeit.com", "password", "123");
+            log.info("Invalid phone number user created. ❌");
+        } catch (IllegalArgumentException e) {
+            log.info("Expected exception caught. ✅ -> {}", e.getMessage());
+        }
+        log.info("--------------------------------------------------");
+
+        // empty channel name test
+        log.info(">> 5-12. Empty Channel Name...");
+        try {
+            this.channelService.createChannel("");
+            log.info("Empty channel created. ❌");
+        } catch (IllegalArgumentException e) {
+            log.info("Expected exception caught. ✅ -> {}", e.getMessage());
+        }
+        log.info("--------------------------------------------------");
+
+        // duplicate channel name test
+        log.info(">> 5-13. Duplicate Channel Name...");
+        try {
+            this.channelService.createChannel("JavaStudyUpdated");
+            log.info("Duplicate channel name created. ❌");
+        } catch (IllegalArgumentException e) {
+            log.info("Expected exception caught. ✅ -> {}", e.getMessage());
+        }
+        log.info("--------------------------------------------------");
+
+        // empty message content test
+        log.info(">> 5-14. Empty Message Content...");
+        try {
+            this.messageService.createMessage("", user1.getId(), channel1.getId());
+            log.info("Empty message created. ❌");
+        } catch (IllegalArgumentException e) {
+            log.info("Expected exception caught. ✅ -> {}", e.getMessage());
+        }
+        log.info("--------------------------------------------------");
+
+        // non-existent user id test
+        log.info(">> 5-15. Non-existent User ID...");
+        try {
+            this.messageService.createMessage("Test message", java.util.UUID.randomUUID(), channel1.getId());
+            log.info("Message with non-existent user created. ❌");
+        } catch (IllegalArgumentException e) {
+            log.info("Expected exception caught. ✅ -> {}", e.getMessage());
+        }
+        log.info("--------------------------------------------------");
+
+        // non-existent channel id test
+        log.info(">> 5-16. Non-existent Channel ID...");
+        try {
+            this.messageService.createMessage("Test message", user1.getId(), java.util.UUID.randomUUID());
+            log.info("Message with non-existent channel created. ❌");
+        } catch (IllegalArgumentException e) {
+            log.info("Expected exception caught. ✅ -> {}", e.getMessage());
+        }
+        log.info("--------------------------------------------------");
+
+        // sender not participating in channel test
+        log.info(">> 5-17. Sender Not Participating in Channel...");
+        Channel channel4 = this.channelService.createChannel("NotJoinedChannel");
+        log.info("Target Channel ID: {}, Sender ID: {}", channel4.getId(), user1.getId());
+        try {
+            this.messageService.createMessage("Test message", user1.getId(), channel4.getId());
+            log.info("Message sent without channel participation. ❌");
+        } catch (IllegalArgumentException e) {
+            log.info("Expected exception caught. ✅ -> {}", e.getMessage());
+        }
         log.info("--------------------------------------------------");
 
         log.info("Discodeit Service Test Finished. ✅");

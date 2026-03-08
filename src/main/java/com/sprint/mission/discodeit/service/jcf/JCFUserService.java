@@ -11,6 +11,8 @@ import java.util.*;
 public class JCFUserService implements UserService {
     private final Map<UUID, User> data;
     private static final Logger log = LoggerFactory.getLogger(JCFUserService.class);
+    private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+    private static final String PHONE_REGEX = "^\\d{3}-\\d{3}-\\d{4}$";
 
     public JCFUserService() {
         this.data = new HashMap<>();
@@ -18,6 +20,21 @@ public class JCFUserService implements UserService {
 
     @Override
     public User createUser(String nickname, String username, String email, String password, String phoneNumber) {
+        if (nickname.isEmpty()) throw new IllegalArgumentException("nickname is required. ❌");
+
+        if (username.isEmpty()) throw new IllegalArgumentException("username is required. ❌");
+        if (existUserByUsername(username)) throw new IllegalArgumentException("username cannot be duplicated. ❌");
+
+        if (email.isEmpty()) throw new IllegalArgumentException("email is required. ❌");
+        if (!email.matches(EMAIL_REGEX)) throw new IllegalArgumentException("email format is invalid. ❌");
+        if (existUserByEmail(email)) throw new IllegalArgumentException("email cannot be duplicated. ❌");
+
+        if (password.isEmpty()) throw new IllegalArgumentException("password is required. ❌");
+        if (password.length() < 8) throw new IllegalArgumentException("password length should be at least 8 characters. ❌");
+
+        if (phoneNumber.isEmpty()) throw new IllegalArgumentException("phone number is required. ❌");
+        if (!phoneNumber.matches(PHONE_REGEX)) throw new IllegalArgumentException("phone number format is invalid. ❌");
+
         User user = new User(nickname, username, email, password, phoneNumber);
         this.data.put(user.getId(), user);
 
@@ -31,6 +48,18 @@ public class JCFUserService implements UserService {
         if (user == null) throw new IllegalArgumentException("requested user not found. ❌");
 
         return user;
+    }
+
+    @Override
+    public boolean existUserByUsername(String username) {
+        return this.data.values().stream()
+                .anyMatch(user -> user.getUsername().equals(username));
+    }
+
+    @Override
+    public boolean existUserByEmail(String email) {
+        return this.data.values().stream()
+                .anyMatch(user -> user.getEmail().equals(email));
     }
 
     @Override

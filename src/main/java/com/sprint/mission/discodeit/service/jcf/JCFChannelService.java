@@ -28,6 +28,9 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public Channel createChannel(String name) {
+        if (name.isEmpty()) throw new IllegalArgumentException("name is required. ❌");
+        if (existChannelByName(name)) throw new IllegalArgumentException("name cannot be duplicated. ❌");
+
         Channel channel = new Channel(name);
         this.data.put(channel.getId(), channel);
 
@@ -41,6 +44,12 @@ public class JCFChannelService implements ChannelService {
         if (channel == null) throw new IllegalArgumentException("requested channel not found. ❌");
 
         return channel;
+    }
+
+    @Override
+    public boolean existChannelByName(String name) {
+        return this.data.values().stream()
+                .anyMatch(channel -> channel.getName().equals(name));
     }
 
     @Override
@@ -77,6 +86,8 @@ public class JCFChannelService implements ChannelService {
     public void joinChannel(UUID id, UUID participantId) {
         Channel channel = this.getChannelById(id);
         User participant = this.userService.getUserById(participantId);
+
+        if (channel.getParticipants().contains(participant)) throw new IllegalArgumentException("duplicated participation is not allowed. ❌");
 
         channel.getParticipants().add(participant);
         participant.getChannels().add(channel);

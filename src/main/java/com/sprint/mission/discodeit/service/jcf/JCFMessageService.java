@@ -25,8 +25,12 @@ public class JCFMessageService implements MessageService {
 
     @Override
     public Message createMessage(String content, UUID senderId, UUID channelId) {
+        if (content.isEmpty()) throw new IllegalArgumentException("content is required. ❌");
+
         User sender = this.userService.getUserById(senderId);
         Channel channel = this.channelService.getChannelById(channelId);
+
+        if (!sender.getChannels().contains(channel)) throw new IllegalArgumentException("sender cannot send message without channel participation. ❌");
 
         Message message = new Message(content, sender, channel);
         this.data.put(message.getId(), message);
