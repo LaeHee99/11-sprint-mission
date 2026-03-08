@@ -2,6 +2,9 @@ package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
+import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
+import com.sprint.mission.discodeit.repository.file.FileUserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,21 +12,16 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.UUID;
 
-public class FileChannelService extends FileIOService<Channel> implements ChannelService {
-    private FileUserService userService;
-    private FileMessageService messageService;
+public class FileChannelService implements ChannelService {
+    private final FileChannelRepository channelRepository;
+    private final FileUserRepository userRepository;
+    private final FileMessageRepository messageRepository;
     private static final Logger log = LoggerFactory.getLogger(FileChannelService.class);
 
-    public FileChannelService() {
-        super(Channel.class);
-    }
-
-    public void setUserService(FileUserService userService) {
-        this.userService = userService;
-    }
-
-    public void setMessageService(FileMessageService messageService) {
-        this.messageService = messageService;
+    public FileChannelService(FileChannelRepository channelRepository, FileUserRepository userRepository, FileMessageRepository messageRepository) {
+        this.channelRepository = channelRepository;
+        this.userRepository = userRepository;
+        this.messageRepository = messageRepository;
     }
 
     @Override
@@ -32,7 +30,7 @@ public class FileChannelService extends FileIOService<Channel> implements Channe
         if (existChannelByName(name)) throw new IllegalArgumentException("name cannot be duplicated. ❌");
 
         Channel channel = new Channel(name);
-        this.save(channel);
+        this.channelRepository.save(channel);
 
         log.info("{} channel has been created successfully. ✅ [ID: {}]", name, channel.getId());
         return channel;
@@ -40,21 +38,17 @@ public class FileChannelService extends FileIOService<Channel> implements Channe
 
     @Override
     public Channel getChannelById(UUID id) {
-        Channel channel = this.findById(id);
-        if (channel == null) throw new IllegalArgumentException("requested channel not found. ❌");
-
-        return channel;
+        return this.channelRepository.findById(id);
     }
 
     @Override
     public boolean existChannelByName(String name) {
-        return this.findAll().stream()
-                .anyMatch(channel -> channel.getName().equals(name));
+        return this.channelRepository.existByName(name);
     }
 
     @Override
     public List<Channel> getAllChannels() {
-        return this.findAll();
+        return this.channelRepository.findAll();
     }
 
     @Override
@@ -62,7 +56,7 @@ public class FileChannelService extends FileIOService<Channel> implements Channe
         Channel channel = this.getChannelById(id);
 
         channel.updateName(name);
-        this.save(channel);
+        this.channelRepository.save(channel);
 
         log.info("{} channel has been updated successfully. ✅ [ID: {}]", name, id);
         return channel;
@@ -75,15 +69,18 @@ public class FileChannelService extends FileIOService<Channel> implements Channe
         channel.getParticipants()
                 .forEach(user -> {
                     user.getChannels().removeIf(ch -> ch.getId().equals(channel.getId()));
-                    this.userService.save(user);
+                    this.userRepository.save(user);
                 });
 
         channel.getMessages()
                 .forEach(message -> {
-                    this.messageService.delete(message);
+                    User sender = message.getSender();
+                    sender.getMessages().remove(message);
+                    this.userRepository.save(sender);
+                    this.messageRepository.delete(message);
                 });
 
-        this.delete(channel);
+        this.channelRepository.delete(channel);
 
         log.info("{} channel has been deleted successfully. ✅ [ID: {}]", channel.getName(), id);
     }
@@ -91,15 +88,15 @@ public class FileChannelService extends FileIOService<Channel> implements Channe
     @Override
     public void joinChannel(UUID id, UUID participantId) {
         Channel channel = this.getChannelById(id);
-        User participant = this.userService.getUserById(participantId);
+        User participant = this.userRepository.findById(participantId);
 
         if (channel.getParticipants().stream().anyMatch(p -> p.getId().equals(participant.getId()))) throw new IllegalArgumentException("duplicated participation is not allowed. ❌");
 
         channel.getParticipants().add(participant);
-        this.save(channel);
+        this.channelRepository.save(channel);
 
         participant.getChannels().add(channel);
-        this.userService.save(participant);
+        this.userRepository.save(participant);
 
         log.info("{} has joined {} channel successfully. ✅", participant.getNickname(), channel.getName());
     }
@@ -107,13 +104,13 @@ public class FileChannelService extends FileIOService<Channel> implements Channe
     @Override
     public void leaveChannel(UUID id, UUID participantId) {
         Channel channel = this.getChannelById(id);
-        User participant = this.userService.getUserById(participantId);
+        User participant = this.userRepository.findById(participantId);
 
         channel.getParticipants().removeIf(p -> p.getId().equals(participant.getId()));
-        this.save(channel);
+        this.channelRepository.save(channel);
 
         participant.getChannels().removeIf(ch -> ch.getId().equals(channel.getId()));
-        this.userService.save(participant);
+        this.userRepository.save(participant);
 
         log.info("{} has left {} channel successfully. ✅", participant.getNickname(), channel.getName());
     }

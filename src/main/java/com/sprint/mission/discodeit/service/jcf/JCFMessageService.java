@@ -3,39 +3,45 @@ package com.sprint.mission.discodeit.service.jcf;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFMessageRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 public class JCFMessageService implements MessageService {
-    private final Map<UUID, Message> data;
-    private final UserService userService;
-    private final ChannelService channelService;
+    private final JCFMessageRepository messageRepository;
+    private final JCFUserRepository userRepository;
+    private final JCFChannelRepository channelRepository;
     private static final Logger log = LoggerFactory.getLogger(JCFMessageService.class);
 
-    public JCFMessageService(UserService userService, ChannelService channelService) {
-        this.data = new HashMap<>();
-        this.userService = userService;
-        this.channelService = channelService;
+    public JCFMessageService(JCFMessageRepository messageRepository, JCFUserRepository userRepository, JCFChannelRepository channelRepository) {
+        this.messageRepository = messageRepository;
+        this.userRepository = userRepository;
+        this.channelRepository = channelRepository;
     }
 
     @Override
     public Message createMessage(String content, UUID senderId, UUID channelId) {
         if (content.isEmpty()) throw new IllegalArgumentException("content is required. ❌");
 
-        User sender = this.userService.getUserById(senderId);
-        Channel channel = this.channelService.getChannelById(channelId);
+        User sender = this.userRepository.findById(senderId);
+        Channel channel = this.channelRepository.findById(channelId);
 
         if (!sender.getChannels().contains(channel)) throw new IllegalArgumentException("sender cannot send message without channel participation. ❌");
 
         Message message = new Message(content, sender, channel);
-        this.data.put(message.getId(), message);
+        this.messageRepository.save(message);
+
         sender.addMessage(message);
+        this.userRepository.save(sender);
+
         channel.addMessage(message);
+        this.channelRepository.save(channel);
 
         log.info("Message has been created successfully. ✅ [ID: {}]", message.getId());
         log.info("-> {channel: {}, sender: {}, content: {}}", channel.getName(), sender.getNickname(), message.getContent());
@@ -44,15 +50,12 @@ public class JCFMessageService implements MessageService {
 
     @Override
     public Message getMessageById(UUID id) {
-        Message message = this.data.get(id);
-        if (message == null) throw new IllegalArgumentException("requested message not found. ❌");
-
-        return message;
+        return this.messageRepository.findById(id);
     }
 
     @Override
     public List<Message> getAllMessages() {
-        return new ArrayList<>(this.data.values());
+        return this.messageRepository.findAll();
     }
 
     @Override
@@ -60,6 +63,7 @@ public class JCFMessageService implements MessageService {
         Message message = this.getMessageById(id);
 
         message.updateContent(content);
+        this.messageRepository.save(message);
 
         log.info("Message has been updated successfully. ✅ [ID: {}]", id);
         return message;
@@ -69,10 +73,15 @@ public class JCFMessageService implements MessageService {
     public void deleteMessage(UUID id) {
         Message message = this.getMessageById(id);
 
-        message.getSender().getMessages().remove(message);
-        message.getChannel().getMessages().remove(message);
+        User sender =  message.getSender();
+        sender.getMessages().remove(message);
+        this.userRepository.save(sender);
 
-        this.data.remove(id);
+        Channel channel = message.getChannel();
+        channel.getMessages().remove(message);
+        this.channelRepository.save(channel);
+
+        this.messageRepository.delete(message);
 
         log.info("Message has been deleted successfully. ✅ [ID: {}]", id);
     }

@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.service.file;
 
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
+import com.sprint.mission.discodeit.repository.file.FileUserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,18 +10,16 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.UUID;
 
-public class FileUserService extends FileIOService<User> implements UserService {
-    private FileChannelService channelService;
+public class FileUserService implements UserService {
+    private final FileUserRepository userRepository;
+    private final FileChannelRepository channelRepository;
     private static final Logger log = LoggerFactory.getLogger(FileUserService.class);
     private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
     private static final String PHONE_REGEX = "^\\d{3}-\\d{3}-\\d{4}$";
 
-    public FileUserService() {
-        super(User.class);
-    }
-
-    public void setChannelService(FileChannelService channelService) {
-        this.channelService = channelService;
+    public FileUserService(FileUserRepository userRepository, FileChannelRepository channelRepository) {
+        this.userRepository = userRepository;
+        this.channelRepository = channelRepository;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class FileUserService extends FileIOService<User> implements UserService 
         if (!phoneNumber.matches(PHONE_REGEX)) throw new IllegalArgumentException("phone number format is invalid. ❌");
 
         User user = new User(nickname, username, email, password, phoneNumber);
-        this.save(user);
+        this.userRepository.save(user);
 
         log.info("{} has been created successfully. ✅ [ID: {}]", nickname, user.getId());
         return user;
@@ -48,27 +48,22 @@ public class FileUserService extends FileIOService<User> implements UserService 
 
     @Override
     public User getUserById(UUID id) {
-        User user = this.findById(id);
-        if (user == null) throw new IllegalArgumentException("requested user not found. ❌");
-
-        return user;
+        return this.userRepository.findById(id);
     }
 
     @Override
     public boolean existUserByUsername(String username) {
-        return this.findAll().stream()
-                .anyMatch(user -> user.getUsername().equals(username));
+        return this.userRepository.existByUsername(username);
     }
 
     @Override
     public boolean existUserByEmail(String email) {
-        return this.findAll().stream()
-                .anyMatch(user -> user.getEmail().equals(email));
+        return this.userRepository.existByEmail(email);
     }
 
     @Override
     public List<User> getAllUsers() {
-        return this.findAll();
+        return this.userRepository.findAll();
     }
 
     @Override
@@ -81,7 +76,7 @@ public class FileUserService extends FileIOService<User> implements UserService 
         if (password != null) user.updatePassword(password);
         if (phoneNumber != null) user.updatePhoneNumber(phoneNumber);
 
-        this.save(user);
+        this.userRepository.save(user);
 
         log.info("{} has been updated successfully. ✅ [ID: {}]", user.getNickname(), id);
         return user;
@@ -94,10 +89,10 @@ public class FileUserService extends FileIOService<User> implements UserService 
         user.getChannels().
                 forEach(channel -> {
                     channel.getParticipants().removeIf(participant -> participant.getId().equals(user.getId()));
-                    this.channelService.save(channel);
+                    this.channelRepository.save(channel);
                 });
 
-        this.delete(user);
+        this.userRepository.delete(user);
 
         log.info("{} has been deleted successfully and left from all channels. ✅ [ID: {}]", user.getNickname(), id);
     }

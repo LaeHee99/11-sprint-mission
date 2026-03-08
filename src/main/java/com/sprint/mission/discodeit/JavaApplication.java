@@ -3,6 +3,9 @@ package com.sprint.mission.discodeit;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
+import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
+import com.sprint.mission.discodeit.repository.file.FileUserRepository;
 import com.sprint.mission.discodeit.service.file.FileChannelService;
 import com.sprint.mission.discodeit.service.file.FileMessageService;
 import com.sprint.mission.discodeit.service.file.FileUserService;
@@ -20,12 +23,12 @@ public class JavaApplication {
 //    private final JCFMessageService messageService;
 //
 //    public JavaApplication() {
-//        this.userService = new JCFUserService();
-//        this.channelService = new JCFChannelService();
-//        this.messageService = new JCFMessageService(userService, channelService);
-//
-//        this.channelService.setUserService(userService);
-//        this.channelService.setMessageService(messageService);
+//        JCFUserRepository userRepository = new JCFUserRepository();
+//        JCFChannelRepository channelRepository = new JCFChannelRepository();
+//        JCFMessageRepository messageRepository = new JCFMessageRepository();
+//        this.userService = new JCFUserService(userRepository, channelRepository);
+//        this.channelService = new JCFChannelService(channelRepository, userRepository, messageRepository);
+//        this.messageService = new JCFMessageService(messageRepository, userRepository, channelRepository);
 //    }
 
     // file
@@ -34,13 +37,12 @@ public class JavaApplication {
     private final FileMessageService messageService;
 
     public JavaApplication() {
-        this.userService = new FileUserService();
-        this.channelService = new FileChannelService();
-        this.messageService = new FileMessageService(userService, channelService);
-
-        this.userService.setChannelService(channelService);
-        this.channelService.setUserService(userService);
-        this.channelService.setMessageService(messageService);
+        FileUserRepository userRepository = new FileUserRepository();
+        FileChannelRepository channelRepository = new FileChannelRepository();
+        FileMessageRepository messageRepository = new FileMessageRepository();
+        this.userService = new FileUserService(userRepository, channelRepository);
+        this.channelService = new FileChannelService(channelRepository, userRepository, messageRepository);
+        this.messageService = new FileMessageService(messageRepository, userRepository,channelRepository);
     }
 
     public static void main(String[] args) {

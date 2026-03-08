@@ -1,21 +1,25 @@
 package com.sprint.mission.discodeit.service.jcf;
 
-import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.jcf.JCFChannelRepository;
+import com.sprint.mission.discodeit.repository.jcf.JCFUserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 public class JCFUserService implements UserService {
-    private final Map<UUID, User> data;
+    private final JCFUserRepository userRepository;
+    private final JCFChannelRepository channelRepository;
     private static final Logger log = LoggerFactory.getLogger(JCFUserService.class);
     private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
     private static final String PHONE_REGEX = "^\\d{3}-\\d{3}-\\d{4}$";
 
-    public JCFUserService() {
-        this.data = new HashMap<>();
+    public JCFUserService(JCFUserRepository userRepository, JCFChannelRepository channelRepository) {
+        this.userRepository = userRepository;
+        this.channelRepository = channelRepository;
     }
 
     @Override
@@ -36,7 +40,7 @@ public class JCFUserService implements UserService {
         if (!phoneNumber.matches(PHONE_REGEX)) throw new IllegalArgumentException("phone number format is invalid. ❌");
 
         User user = new User(nickname, username, email, password, phoneNumber);
-        this.data.put(user.getId(), user);
+        this.userRepository.save(user);
 
         log.info("{} has been created successfully. ✅ [ID: {}]", nickname, user.getId());
         return user;
@@ -44,27 +48,22 @@ public class JCFUserService implements UserService {
 
     @Override
     public User getUserById(UUID id) {
-        User user = this.data.get(id);
-        if (user == null) throw new IllegalArgumentException("requested user not found. ❌");
-
-        return user;
+        return this.userRepository.findById(id);
     }
 
     @Override
     public boolean existUserByUsername(String username) {
-        return this.data.values().stream()
-                .anyMatch(user -> user.getUsername().equals(username));
+        return this.userRepository.existByUsername(username);
     }
 
     @Override
     public boolean existUserByEmail(String email) {
-        return this.data.values().stream()
-                .anyMatch(user -> user.getEmail().equals(email));
+        return this.userRepository.existByEmail(email);
     }
 
     @Override
     public List<User> getAllUsers() {
-        return new ArrayList<>(this.data.values());
+        return this.userRepository.findAll();
     }
 
     @Override
@@ -77,6 +76,8 @@ public class JCFUserService implements UserService {
         if (password != null) user.updatePassword(password);
         if (phoneNumber != null) user.updatePhoneNumber(phoneNumber);
 
+        this.userRepository.save(user);
+
         log.info("{} has been updated successfully. ✅ [ID: {}]", user.getNickname(), id);
         return user;
     }
@@ -85,11 +86,13 @@ public class JCFUserService implements UserService {
     public void deleteUser(UUID id) {
         User user = this.getUserById(id);
 
-        for (Channel channel : user.getChannels()) {
-            channel.removeParticipant(user);
-        }
+        user.getChannels().
+                forEach(channel -> {
+                    channel.getParticipants().remove(user);
+                    this.channelRepository.save(channel);
+                });
 
-        this.data.remove(id);
+        this.userRepository.delete(user);
 
         log.info("{} has been deleted successfully and left from all channels. ✅ [ID: {}]", user.getNickname(), id);
     }

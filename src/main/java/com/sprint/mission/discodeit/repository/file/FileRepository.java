@@ -1,8 +1,6 @@
-package com.sprint.mission.discodeit.service.file;
+package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.BaseEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -13,18 +11,17 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-public class FileIOService<T extends BaseEntity> {
+public class FileRepository<T extends BaseEntity> {
     private final Class<T> type;
     private final Path dir;
-    protected static final Logger log = LoggerFactory.getLogger(FileIOService.class);
 
-    public FileIOService(Class<T> type) {
+    public FileRepository(Class<T> type) {
         this.type = type;
         this.dir = Paths.get(System.getProperty("java.io.tmpdir"), "discodeit", type.getSimpleName().toLowerCase());
         this.init(dir);
     }
 
-    public void init(Path dir) {
+    private void init(Path dir) {
         try {
             if (Files.exists(dir)) {
                 try (Stream<Path> paths = Files.list(dir)) {
@@ -48,7 +45,7 @@ public class FileIOService<T extends BaseEntity> {
         return this.dir.resolve(id.toString());
     }
 
-    public void save(T data) {
+    protected void save(T data) {
         Path path = uuidToPath(data.getId());
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());
@@ -60,7 +57,7 @@ public class FileIOService<T extends BaseEntity> {
         }
     }
 
-    public T findById(UUID id) {
+    protected T findById(UUID id) {
         return findByPath(uuidToPath(id));
     }
 
@@ -79,7 +76,7 @@ public class FileIOService<T extends BaseEntity> {
         }
     }
 
-    public List<T> findAll() {
+    protected List<T> findAll() {
         if (!Files.exists(this.dir)) return new ArrayList<>();
         try (Stream<Path> paths = Files.list(this.dir)) {
             return paths
@@ -90,7 +87,7 @@ public class FileIOService<T extends BaseEntity> {
         }
     }
 
-    public void delete(T data) {
+    protected void delete(T data) {
         Path path = uuidToPath(data.getId());
         try {
             Files.delete(path);
