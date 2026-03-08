@@ -42,6 +42,14 @@ public class JCFMessageService implements MessageService {
 
     @Override
     public void create(Message message) {
+        if(message.getSenderId() == null){
+            System.out.println("유저 id가 유효하지 않습니다.");
+            return;
+        }
+        if(message.getChannelId() == null){
+            System.out.println("채널 id가 유효하지 않습니다.");
+            return;
+        }
         if(!messageData.containsKey(message.getId())) {
             //System.out.println("메시지 등록 완료\n"+channel);
             messageData.put(message.getId(), message);

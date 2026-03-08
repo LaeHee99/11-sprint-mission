@@ -42,6 +42,10 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public void create(Channel channel) {
+        if(channel.getAdminId() == null){
+            System.out.println("어드민 id가 유효하지 않습니다.");
+            return;
+        }
         if(!channelData.containsKey(channel.getId())) {
             //System.out.println("채널 등록 완료\n"+channel);
             channelData.put(channel.getId(), channel);

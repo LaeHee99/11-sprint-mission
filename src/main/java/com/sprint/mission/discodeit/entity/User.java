@@ -1,11 +1,15 @@
 package com.sprint.mission.discodeit.entity;
 import com.sprint.mission.discodeit.util.StringUtil;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class User extends BaseEntity{
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private String userName; //닉네임
     private String email; //이메일 or 아이디?

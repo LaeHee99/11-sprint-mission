@@ -1,8 +1,13 @@
 package com.sprint.mission.discodeit.entity;
 import com.sprint.mission.discodeit.util.StringUtil;
+
+import java.io.Serial;
 import java.util.UUID;
 
 public class Message extends BaseEntity{
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private String content;
     private UUID channelId;
