@@ -27,7 +27,7 @@ public class JCFChannelService implements ChannelService {
 
     @Override
     public Channel createChannel(String name) {
-        if (name.isEmpty()) throw new IllegalArgumentException("name is required. ❌");
+        if (name == null || name.isBlank()) throw new IllegalArgumentException("name is required. ❌");
         if (existChannelByName(name)) throw new IllegalArgumentException("name cannot be duplicated. ❌");
 
         Channel channel = new Channel(name);
@@ -56,7 +56,11 @@ public class JCFChannelService implements ChannelService {
     public Channel updateChannel(UUID id, String name) {
         Channel channel = this.getChannelById(id);
 
-        channel.updateName(name);
+        if (name != null && !name.isBlank()) {
+            if (existChannelByName(name)) throw new IllegalArgumentException("name cannot be duplicated. ❌");
+            channel.updateName(name);
+        }
+
         this.channelRepository.save(channel);
 
         log.info("{} channel has been updated successfully. ✅ [ID: {}]", name, id);

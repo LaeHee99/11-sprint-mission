@@ -27,7 +27,7 @@ public class FileMessageService implements MessageService {
 
     @Override
     public Message createMessage(String content, UUID senderId, UUID channelId) {
-        if (content.isEmpty()) throw new IllegalArgumentException("content is required. ❌");
+        if (content == null || content.isBlank()) throw new IllegalArgumentException("content is required. ❌");
 
         User sender = this.userRepository.findById(senderId);
         Channel channel = this.channelRepository.findById(channelId);
@@ -64,7 +64,7 @@ public class FileMessageService implements MessageService {
     public Message updateMessage(UUID id, String content) {
         Message message = this.getMessageById(id);
 
-        message.updateContent(content);
+        if (content != null && !content.isBlank()) message.updateContent(content);
         this.messageRepository.save(message);
 
         log.info("Message has been updated successfully. ✅ [ID: {}]", id);

@@ -24,19 +24,19 @@ public class JCFUserService implements UserService {
 
     @Override
     public User createUser(String nickname, String username, String email, String password, String phoneNumber) {
-        if (nickname.isEmpty()) throw new IllegalArgumentException("nickname is required. ❌");
+        if (nickname == null || nickname.isBlank()) throw new IllegalArgumentException("nickname is required. ❌");
 
-        if (username.isEmpty()) throw new IllegalArgumentException("username is required. ❌");
-        if (existUserByUsername(username)) throw new IllegalArgumentException("username cannot be duplicated. ❌");
+        if (username == null || username.isBlank()) throw new IllegalArgumentException("username is required. ❌");
+        if (this.existUserByUsername(username)) throw new IllegalArgumentException("username cannot be duplicated. ❌");
 
-        if (email.isEmpty()) throw new IllegalArgumentException("email is required. ❌");
+        if (email == null || email.isBlank()) throw new IllegalArgumentException("email is required. ❌");
         if (!email.matches(EMAIL_REGEX)) throw new IllegalArgumentException("email format is invalid. ❌");
-        if (existUserByEmail(email)) throw new IllegalArgumentException("email cannot be duplicated. ❌");
+        if (this.existUserByEmail(email)) throw new IllegalArgumentException("email cannot be duplicated. ❌");
 
-        if (password.isEmpty()) throw new IllegalArgumentException("password is required. ❌");
+        if (password == null || password.isBlank()) throw new IllegalArgumentException("password is required. ❌");
         if (password.length() < 8) throw new IllegalArgumentException("password length should be at least 8 characters. ❌");
 
-        if (phoneNumber.isEmpty()) throw new IllegalArgumentException("phone number is required. ❌");
+        if (phoneNumber == null || phoneNumber.isBlank()) throw new IllegalArgumentException("phone number is required. ❌");
         if (!phoneNumber.matches(PHONE_REGEX)) throw new IllegalArgumentException("phone number format is invalid. ❌");
 
         User user = new User(nickname, username, email, password, phoneNumber);
@@ -70,11 +70,24 @@ public class JCFUserService implements UserService {
     public User updateUser(UUID id, String nickname, String username, String email, String password, String phoneNumber) {
         User user = this.getUserById(id);
 
-        if (nickname != null) user.updateNickname(nickname);
-        if (username != null) user.updateUsername(username);
-        if (email != null) user.updateEmail(email);
-        if (password != null) user.updatePassword(password);
-        if (phoneNumber != null) user.updatePhoneNumber(phoneNumber);
+        if (nickname != null && !nickname.isBlank()) user.updateNickname(nickname);
+        if (username != null && !username.isBlank()) {
+            if (this.existUserByUsername(username)) throw new IllegalArgumentException("username cannot be duplicated. ❌");
+            user.updateUsername(username);
+        }
+        if (email != null && !email.isBlank()) {
+            if (!email.matches(EMAIL_REGEX)) throw new IllegalArgumentException("email format is invalid. ❌");
+            if (this.existUserByEmail(email)) throw new IllegalArgumentException("email cannot be duplicated. ❌");
+            user.updateEmail(email);
+        }
+        if (password != null && !password.isBlank()) {
+            if (password.length() < 8) throw new IllegalArgumentException("password length should be at least 8 characters. ❌");
+            user.updatePassword(password);
+        }
+        if (phoneNumber != null && !phoneNumber.isBlank()) {
+            if (!phoneNumber.matches(PHONE_REGEX)) throw new IllegalArgumentException("phone number format is invalid. ❌");
+            user.updatePhoneNumber(phoneNumber);
+        }
 
         this.userRepository.save(user);
 
