@@ -3,9 +3,9 @@ package com.sprint.mission.discodeit;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
-import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
-import com.sprint.mission.discodeit.service.jcf.JCFUserService;
+import com.sprint.mission.discodeit.service.file.FileChannelService;
+import com.sprint.mission.discodeit.service.file.FileMessageService;
+import com.sprint.mission.discodeit.service.file.FileUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,15 +13,32 @@ import java.util.List;
 
 public class JavaApplication {
     private final Logger log = LoggerFactory.getLogger(JavaApplication.class);
-    private final JCFUserService userService;
-    private final JCFChannelService channelService;
-    private final JCFMessageService messageService;
+
+    // jcf
+//    private final JCFUserService userService;
+//    private final JCFChannelService channelService;
+//    private final JCFMessageService messageService;
+//
+//    public JavaApplication() {
+//        this.userService = new JCFUserService();
+//        this.channelService = new JCFChannelService();
+//        this.messageService = new JCFMessageService(userService, channelService);
+//
+//        this.channelService.setUserService(userService);
+//        this.channelService.setMessageService(messageService);
+//    }
+
+    // file
+    private final FileUserService userService;
+    private final FileChannelService channelService;
+    private final FileMessageService messageService;
 
     public JavaApplication() {
-        this.userService = new JCFUserService();
-        this.channelService = new JCFChannelService();
-        this.messageService = new JCFMessageService(userService, channelService);
+        this.userService = new FileUserService();
+        this.channelService = new FileChannelService();
+        this.messageService = new FileMessageService(userService, channelService);
 
+        this.userService.setChannelService(channelService);
         this.channelService.setUserService(userService);
         this.channelService.setMessageService(messageService);
     }

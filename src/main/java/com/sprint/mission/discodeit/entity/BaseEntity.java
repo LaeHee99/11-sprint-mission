@@ -1,9 +1,11 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class BaseEntity {
+public class BaseEntity implements Serializable {
+    private static final long serialVersionUID = 1L;
     private UUID id;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
