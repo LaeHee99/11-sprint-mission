@@ -3,12 +3,15 @@ package com.sprint.mission.discodeit;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.file.FileChannelRepository;
 import com.sprint.mission.discodeit.repository.file.FileMessageRepository;
 import com.sprint.mission.discodeit.repository.file.FileUserRepository;
-import com.sprint.mission.discodeit.service.file.FileChannelService;
-import com.sprint.mission.discodeit.service.file.FileMessageService;
-import com.sprint.mission.discodeit.service.file.FileUserService;
+import com.sprint.mission.discodeit.service.basic.BasicChannelService;
+import com.sprint.mission.discodeit.service.basic.BasicMessageService;
+import com.sprint.mission.discodeit.service.basic.BasicUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,17 +35,36 @@ public class JavaApplication {
 //    }
 
     // file
-    private final FileUserService userService;
-    private final FileChannelService channelService;
-    private final FileMessageService messageService;
+//    private final FileUserService userService;
+//    private final FileChannelService channelService;
+//    private final FileMessageService messageService;
+//
+//    public JavaApplication() {
+//        FileUserRepository userRepository = new FileUserRepository();
+//        FileChannelRepository channelRepository = new FileChannelRepository();
+//        FileMessageRepository messageRepository = new FileMessageRepository();
+//        this.userService = new FileUserService(userRepository, channelRepository);
+//        this.channelService = new FileChannelService(channelRepository, userRepository, messageRepository);
+//        this.messageService = new FileMessageService(messageRepository, userRepository,channelRepository);
+//    }
+
+    // basic
+    private final BasicUserService userService;
+    private final BasicChannelService channelService;
+    private final BasicMessageService messageService;
 
     public JavaApplication() {
-        FileUserRepository userRepository = new FileUserRepository();
-        FileChannelRepository channelRepository = new FileChannelRepository();
-        FileMessageRepository messageRepository = new FileMessageRepository();
-        this.userService = new FileUserService(userRepository, channelRepository);
-        this.channelService = new FileChannelService(channelRepository, userRepository, messageRepository);
-        this.messageService = new FileMessageService(messageRepository, userRepository,channelRepository);
+//        UserRepository userRepository = new JCFUserRepository();
+//        ChannelRepository channelRepository = new JCFChannelRepository();
+//        MessageRepository messageRepository = new JCFMessageRepository();
+
+        UserRepository userRepository = new FileUserRepository();
+        ChannelRepository channelRepository = new FileChannelRepository();
+        MessageRepository messageRepository = new FileMessageRepository();
+
+        this.userService = new BasicUserService(userRepository, channelRepository);
+        this.channelService = new BasicChannelService(channelRepository, userRepository, messageRepository);
+        this.messageService = new BasicMessageService(messageRepository, userRepository, channelRepository);
     }
 
     public static void main(String[] args) {
