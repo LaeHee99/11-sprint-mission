@@ -1,0 +1,44 @@
+package com.sprint.mission.discodeit.service.basic;
+
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.service.ChannelService;
+
+import java.util.List;
+import java.util.UUID;
+
+public class BasicChannelService implements ChannelService {
+
+    ChannelRepository channelRepo;
+
+    public BasicChannelService(ChannelRepository channelRepo) {
+        this.channelRepo = channelRepo;
+    }
+
+    public Channel createChannel(ChannelType channelType, String name, String description) {
+        Channel channel = new Channel(channelType, name, description);
+        channelRepo.save(channel);
+        return channel;
+    }
+
+    public Channel findChannel(UUID id) {
+        return channelRepo.load(id);
+    }
+
+    public List<Channel> findAllChannel() {
+        return channelRepo.loadAll();
+    }
+
+    public void updateChannel(Channel oldChannel, Channel newChannel) {
+        oldChannel.setChannelType(newChannel.getChannelType());
+        oldChannel.setName(newChannel.getName());
+        oldChannel.setDescription(newChannel.getDescription());
+        oldChannel.update();
+        channelRepo.save(oldChannel);
+    }
+
+    public void deleteChannel(Channel channel) {
+        channelRepo.delete(channel);
+    }
+}
