@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
+
+@Getter
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -24,6 +26,7 @@ public class User implements Serializable {
         this.password = password;
     }
 
+ /*
     public UUID getId() {
         return id;
     }
@@ -47,7 +50,7 @@ public class User implements Serializable {
     public String getPassword() {
         return password;
     }
-
+*/
     public void update(String newUsername, String newEmail, String newPassword) {
         boolean anyValueUpdated = false;
         if (newUsername != null && !newUsername.equals(this.username)) {

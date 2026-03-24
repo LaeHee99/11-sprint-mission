@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
+
+@Getter
 public class Channel implements Serializable {
     private static final long serialVersionUID = 1L;
     private UUID id;
@@ -22,7 +24,7 @@ public class Channel implements Serializable {
         this.name = name;
         this.description = description;
     }
-
+/*
     public UUID getId() {
         return id;
     }
@@ -46,6 +48,7 @@ public class Channel implements Serializable {
     public String getDescription() {
         return description;
     }
+*/
 
     public void update(String newName, String newDescription) {
         boolean anyValueUpdated = false;

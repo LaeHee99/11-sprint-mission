@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
+
+@Getter
 public class Message implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -25,6 +27,7 @@ public class Message implements Serializable {
         this.authorId = authorId;
     }
 
+    /*
     public UUID getId() {
         return id;
     }
@@ -48,6 +51,7 @@ public class Message implements Serializable {
     public UUID getAuthorId() {
         return authorId;
     }
+     */
 
     public void update(String newContent) {
         boolean anyValueUpdated = false;
