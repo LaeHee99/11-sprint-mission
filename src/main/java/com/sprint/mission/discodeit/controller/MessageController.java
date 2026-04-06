@@ -20,17 +20,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-@Controller
-@ResponseBody
+@RestController
 @RequestMapping("/api/message")
 public class MessageController {
 
   private final MessageService messageService;
 
-  @RequestMapping(
-      path = "create",
-      consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-  )
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<Message> create(
       @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
@@ -51,34 +47,26 @@ public class MessageController {
             .toList())
         .orElse(new ArrayList<>());
     Message createdMessage = messageService.create(messageCreateRequest, attachmentRequests);
-    return ResponseEntity
-        .status(HttpStatus.CREATED)
-        .body(createdMessage);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdMessage);
   }
 
-  @RequestMapping(path = "update")
+  @PatchMapping("/{messageId}")
   public ResponseEntity<Message> update(@RequestParam("messageId") UUID messageId,
       @RequestBody MessageUpdateRequest request) {
     Message updatedMessage = messageService.update(messageId, request);
-    return ResponseEntity
-        .status(HttpStatus.OK)
-        .body(updatedMessage);
+    return ResponseEntity.ok(updatedMessage);
   }
 
-  @RequestMapping(path = "delete")
+  @DeleteMapping("/{messageId}")
   public ResponseEntity<Void> delete(@RequestParam("messageId") UUID messageId) {
     messageService.delete(messageId);
-    return ResponseEntity
-        .status(HttpStatus.NO_CONTENT)
-        .build();
+    return ResponseEntity.noContent().build();
   }
 
-  @RequestMapping("findAllByChannelId")
+  @GetMapping
   public ResponseEntity<List<Message>> findAllByChannelId(
       @RequestParam("channelId") UUID channelId) {
     List<Message> messages = messageService.findAllByChannelId(channelId);
-    return ResponseEntity
-        .status(HttpStatus.OK)
-        .body(messages);
+    return ResponseEntity.ok(messages);
   }
 }

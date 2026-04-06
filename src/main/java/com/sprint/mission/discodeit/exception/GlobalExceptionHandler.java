@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.exception;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -7,7 +8,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.NoSuchElementException;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@Hidden // Swagger 충돌 문제 때문에 Hidden 추가
 @ControllerAdvice
 @ResponseBody
 public class GlobalExceptionHandler {
