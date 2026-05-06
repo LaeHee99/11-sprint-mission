@@ -204,6 +204,7 @@ gradle-app.setting
 # Sensitive configuration
 application-local.yml
 application-dev.yml
+application-prod.yml
 application.yaml
 .env
 
