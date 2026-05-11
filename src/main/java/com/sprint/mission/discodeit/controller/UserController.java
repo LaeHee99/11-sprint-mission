@@ -27,7 +27,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/users")
@@ -42,9 +44,11 @@ public class UserController implements UserApi {
       @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
+    log.info("사용자 생성 요청 수신: username={}", userCreateRequest.username());
     Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
         .flatMap(this::resolveProfileRequest);
     UserDto createdUser = userService.create(userCreateRequest, profileRequest);
+    log.info("사용자 삭제 완료: userId={}", createdUser.id());
     return ResponseEntity
         .status(HttpStatus.CREATED)
         .body(createdUser);
@@ -71,7 +75,9 @@ public class UserController implements UserApi {
   @DeleteMapping(path = "{userId}")
   @Override
   public ResponseEntity<Void> delete(@PathVariable("userId") UUID userId) {
+    log.info("사용자 삭제 요청 수신: userId={}", userId);
     userService.delete(userId);
+    log.info("사용자 삭제 완료:  userId={}", userId);
     return ResponseEntity
         .status(HttpStatus.NO_CONTENT)
         .build();
