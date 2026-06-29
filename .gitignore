@@ -46,5 +46,7 @@ bin/
 !.gitignore
 !.dockerignore
 !.env.example
+!.github/
+!.github/**
 
 요구사항.txt
