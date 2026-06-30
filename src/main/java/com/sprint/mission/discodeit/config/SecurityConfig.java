@@ -77,14 +77,16 @@ public class SecurityConfig {
 
     // 등록된 Spring Security 필터 목록 확인용 로그임
     securityFilterChain.getFilters()
-        .forEach(filter -> log.debug("Security filter registered: {}", filter.getClass().getName()));
+        .forEach(
+            filter -> log.debug("Security filter registered: {}", filter.getClass().getName()));
 
     return securityFilterChain;
-
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    // BCrypt 기반 비밀번호 해시 인코더 등록함
-    // 회원가입, 비밀번호 변경, 로그인 검증에서 같은 방식으로 사용함
-    return new BCryptPasswordEncoder();
   }
-}
+
+    @Bean
+    public PasswordEncoder passwordEncoder () {
+      // BCrypt 기반 비밀번호 해시 인코더 등록함
+      // 회원가입, 비밀번호 변경, 로그인 검증에서 같은 방식으로 사용함
+      return new BCryptPasswordEncoder();
+    }
+  }
