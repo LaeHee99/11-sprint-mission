@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -20,6 +21,7 @@ public class BasicAuthService implements AuthService {
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
+  private final PasswordEncoder passwordEncoder;
 
   @Transactional(readOnly = true)
   @Override
@@ -32,7 +34,8 @@ public class BasicAuthService implements AuthService {
     User user = userRepository.findByUsername(username)
         .orElseThrow(() -> UserNotFoundException.withUsername(username));
 
-    if (!user.getPassword().equals(password)) {
+    // 저장된 비밀번호는 BCrypt 해시 값이므로 matches로 비교함
+    if (!passwordEncoder.matches(password, user.getPassword())) {
       throw InvalidCredentialsException.wrongPassword();
     }
 

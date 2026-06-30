@@ -7,6 +7,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Slf4j
 @Configuration
@@ -70,5 +72,12 @@ public class SecurityConfig {
         .forEach(filter -> log.debug("Security filter registered: {}", filter.getClass().getName()));
 
     return securityFilterChain;
+  }
+
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    // BCrypt 기반 비밀번호 해시 인코더 등록함
+    // 회원가입, 비밀번호 변경, 로그인 검증에서 같은 방식으로 사용함
+    return new BCryptPasswordEncoder();
   }
 }
