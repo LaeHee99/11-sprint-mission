@@ -10,6 +10,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -72,6 +74,19 @@ public class SecurityConfig {
             .passwordParameter("password")
             .successHandler(authenticationSuccessHandler)
             .failureHandler(authenticationFailureHandler)
+        )
+        .logout(logout -> logout
+            // Spring Security가 처리할 로그아웃 URL 지정함
+            .logoutUrl("/api/auth/logout")
+
+            // 로그아웃 성공 시 응답 본문 없이 204 반환함
+            .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
+
+            // 로그아웃 시 현재 세션 무효화함
+            .invalidateHttpSession(true)
+
+            // 브라우저에 남아있는 세션 쿠키 삭제 요청함
+            .deleteCookies("JSESSIONID")
         )
         .build();
 
