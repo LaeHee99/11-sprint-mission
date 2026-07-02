@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -154,5 +155,20 @@ public class BasicUserService implements UserService {
 
     userRepository.deleteById(userId);
     log.info("사용자 삭제 완료: id={}", userId);
+  }
+
+  @Transactional
+  @Override
+  public UserDto updateRole(UUID userId, Role newRole) {
+    log.debug("사용자 역할 변경 시작: userId={}, newRole={}", userId, newRole);
+
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> UserNotFoundException.withId(userId));
+
+    // 사용자 엔티티의 역할 값을 변경함
+    user.updateRole(newRole);
+
+    log.info("사용자 역할 변경 완료: userId={}, newRole={}", userId, newRole);
+    return userMapper.toDto(user);
   }
 }

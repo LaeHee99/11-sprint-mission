@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.controller.api;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,8 +11,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import jakarta.validation.Valid;
 
 @Tag(name = "Auth", description = "인증 API")
 public interface AuthApi {
@@ -35,5 +38,17 @@ public interface AuthApi {
   ResponseEntity<UserDto> me(
       @Parameter(hidden = true)
       @AuthenticationPrincipal DiscodeitUserDetails userDetails
+  );
+
+  @Operation(summary = "사용자 역할 변경")
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "사용자 역할 변경 성공",
+          content = @Content(schema = @Schema(implementation = UserDto.class))
+      )
+  })
+  ResponseEntity<UserDto> updateRole(
+      @RequestBody @Valid RoleUpdateRequest request
   );
 } 

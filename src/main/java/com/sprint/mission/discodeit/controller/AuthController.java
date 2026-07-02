@@ -2,6 +2,8 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.AuthApi;
 import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
+import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +14,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import lombok.extern.slf4j.Slf4j;
+import jakarta.validation.Valid;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -21,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthController implements AuthApi {
 
   private final UserMapper userMapper;
+  private final UserService userService;
 
   @GetMapping("me")
   public ResponseEntity<UserDto> me(
@@ -43,5 +49,17 @@ public class AuthController implements AuthApi {
     return ResponseEntity
         .status(HttpStatus.NON_AUTHORITATIVE_INFORMATION)
         .build();
+  }
+
+  @PutMapping("role")
+  public ResponseEntity<UserDto> updateRole(
+      @RequestBody @Valid RoleUpdateRequest request
+  ) {
+    // 요청으로 받은 사용자 id와 새 역할로 사용자 역할 변경함
+    UserDto userDto = userService.updateRole(request.userId(), request.newRole());
+
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(userDto);
   }
 }
