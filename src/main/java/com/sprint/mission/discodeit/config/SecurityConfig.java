@@ -11,6 +11,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.http.HttpMethod;
@@ -94,6 +97,15 @@ public class SecurityConfig {
             // 브라우저에 남아있는 세션 쿠키 삭제 요청함
             .deleteCookies("JSESSIONID")
         )
+        .sessionManagement(session -> session
+            .maximumSessions(1)
+            // true면 기존 로그인 세션이 있으면 새 로그인을 막음
+            // false면 새 로그인을 허용하고 기존 세션을 만료시킴
+            .maxSessionsPreventsLogin(false)
+
+            // 세션 정보를 SessionRegistry에 저장함
+            .sessionRegistry(sessionRegistry())
+        )
         .build();
 
     // 등록된 Spring Security 필터 목록 확인용 로그임
@@ -121,4 +133,18 @@ public class SecurityConfig {
        ROLE_CHANNEL_MANAGER > ROLE_USER
        """);
     }
+
+    @Bean
+    public SessionRegistry sessionRegistry() {
+      // 현재 인증된 사용자별 세션 정보를 저장함
+      // 중복 로그인 제어와 역할 변경 시 기존 세션 만료에 사용함
+      return new SessionRegistryImpl();
+    }
+
+  @Bean
+  public HttpSessionEventPublisher httpSessionEventPublisher() {
+    // 세션 생성/만료 이벤트를 Spring Security SessionRegistry에 전달함
+    // 세션 동시성 제어가 정확히 동작하기 위함
+    return new HttpSessionEventPublisher();
+  }
   }
