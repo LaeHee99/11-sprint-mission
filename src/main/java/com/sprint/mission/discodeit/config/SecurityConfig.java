@@ -4,10 +4,13 @@ import com.sprint.mission.discodeit.security.DiscodeitAuthenticationFailureHandl
 import com.sprint.mission.discodeit.security.DiscodeitAuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.http.HttpMethod;
@@ -19,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Slf4j
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -105,5 +109,16 @@ public class SecurityConfig {
       // BCrypt 기반 비밀번호 해시 인코더 등록함
       // 회원가입, 비밀번호 변경, 로그인 검증에서 같은 방식으로 사용함
       return new BCryptPasswordEncoder();
+    }
+
+
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+      // ADMIN은 CHANNEL_MANAGER 권한을 포함함
+      // CHANNEL_MANAGER는 USER 권한을 포함함
+      return RoleHierarchyImpl.fromHierarchy("""
+       ROLE_ADMIN > ROLE_CHANNEL_MANAGER
+       ROLE_CHANNEL_MANAGER > ROLE_USER
+       """);
     }
   }

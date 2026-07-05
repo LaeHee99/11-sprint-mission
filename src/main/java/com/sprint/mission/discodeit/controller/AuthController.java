@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,11 +52,12 @@ public class AuthController implements AuthApi {
         .build();
   }
 
+  @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("role")
   public ResponseEntity<UserDto> updateRole(
       @RequestBody @Valid RoleUpdateRequest request
   ) {
-    // 요청으로 받은 사용자 id와 새 역할로 사용자 역할 변경함
+    // ADMIN 권한을 가진 사용자만 다른 사용자의 역할을 변경할 수 있음
     UserDto userDto = userService.updateRole(request.userId(), request.newRole());
 
     return ResponseEntity

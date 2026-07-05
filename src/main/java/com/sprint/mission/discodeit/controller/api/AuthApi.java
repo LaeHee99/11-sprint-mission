@@ -46,6 +46,10 @@ public interface AuthApi {
           responseCode = "200",
           description = "사용자 역할 변경 성공",
           content = @Content(schema = @Schema(implementation = UserDto.class))
+      ),
+      @ApiResponse(
+          responseCode = "403",
+          description = "권한 부족"
       )
   })
   ResponseEntity<UserDto> updateRole(
