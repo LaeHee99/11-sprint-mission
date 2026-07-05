@@ -16,6 +16,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -37,6 +40,7 @@ public class BasicUserService implements UserService {
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentStorage binaryContentStorage;
   private final PasswordEncoder passwordEncoder;
+  private final SessionRegistry sessionRegistry;
 
   @Transactional
   @Override
@@ -165,10 +169,29 @@ public class BasicUserService implements UserService {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> UserNotFoundException.withId(userId));
 
-    // 사용자 엔티티의 역할 값을 변경함
+    // 사용자 역할 변경함
     user.updateRole(newRole);
+
+    // 역할이 변경된 사용자의 기존 세션을 만료시킴
+    expireSessions(userId);
 
     log.info("사용자 역할 변경 완료: userId={}, newRole={}", userId, newRole);
     return userMapper.toDto(user);
+  }
+
+  private void expireSessions(UUID userId) {
+    // SessionRegistry에 등록된 모든 인증 principal을 확인함
+    sessionRegistry.getAllPrincipals().stream()
+        .filter(principal -> principal instanceof DiscodeitUserDetails)
+        .map(principal -> (DiscodeitUserDetails) principal)
+
+        // 역할이 변경된 사용자와 같은 id를 가진 principal만 찾음
+        .filter(userDetails -> userDetails.getId().equals(userId))
+
+        // 해당 principal의 만료되지 않은 세션 목록을 가져옴
+        .flatMap(userDetails -> sessionRegistry.getAllSessions(userDetails, false).stream())
+
+        // 기존 세션을 만료 처리함
+        .forEach(SessionInformation::expireNow);
   }
 }
