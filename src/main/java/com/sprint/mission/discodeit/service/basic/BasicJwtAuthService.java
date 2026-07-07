@@ -8,6 +8,8 @@ import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
+import com.sprint.mission.discodeit.security.JwtInformation;
+import com.sprint.mission.discodeit.security.JwtRegistry;
 import com.sprint.mission.discodeit.service.JwtAuthService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ public class BasicJwtAuthService implements JwtAuthService {
   private final JwtTokenProvider jwtTokenProvider;
   private final UserRepository userRepository;
   private final UserMapper userMapper;
+  private final JwtRegistry jwtRegistry;
 
   @Override
   @Transactional(readOnly = true)
@@ -36,6 +39,11 @@ public class BasicJwtAuthService implements JwtAuthService {
       throw new BadCredentialsException("Invalid refresh token.");
     }
 
+    // registry에 등록된 refresh token인지 확인함
+    if (!jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
+      throw new BadCredentialsException("Inactive refresh token.");
+    }
+
     UUID userId = jwtTokenProvider.getUserId(refreshToken);
 
     User user = userRepository.findById(userId)
@@ -43,6 +51,17 @@ public class BasicJwtAuthService implements JwtAuthService {
 
     String newAccessToken = jwtTokenProvider.generateAccessToken(user);
     String newRefreshToken = jwtTokenProvider.generateRefreshToken(user);
+
+    jwtRegistry.rotateJwtInformation(
+        refreshToken,
+        new JwtInformation(
+            user.getId(),
+            newAccessToken,
+            newRefreshToken,
+            jwtTokenProvider.getExpirationTime(newAccessToken),
+            jwtTokenProvider.getExpirationTime(newRefreshToken)
+        )
+    );
 
     UserDto userDto = userMapper.toDto(user);
     JwtDto jwtDto = new JwtDto(userDto, newAccessToken);

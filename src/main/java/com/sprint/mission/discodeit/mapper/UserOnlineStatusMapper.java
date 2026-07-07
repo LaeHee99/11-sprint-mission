@@ -1,17 +1,16 @@
 package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.JwtRegistry;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Named;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class UserOnlineStatusMapper {
 
-  private final SessionRegistry sessionRegistry;
+  private final JwtRegistry jwtRegistry;
 
   @Named("online")
   public Boolean online(User user) {
@@ -20,13 +19,7 @@ public class UserOnlineStatusMapper {
       return false;
     }
 
-    // SessionRegistry에 등록된 인증 사용자 중 같은 userId를 가진 principal이 있는지 확인함
-    return sessionRegistry.getAllPrincipals().stream()
-        .filter(principal -> principal instanceof DiscodeitUserDetails)
-        .map(principal -> (DiscodeitUserDetails) principal)
-        .filter(userDetails -> userDetails.getId().equals(user.getId()))
-
-        // 만료되지 않은 세션이 하나라도 있으면 온라인으로 판단함
-        .anyMatch(userDetails -> !sessionRegistry.getAllSessions(userDetails, false).isEmpty());
+    // JwtRegistry에 활성 JWT 정보가 있으면 로그인 중으로 판단함
+    return jwtRegistry.hasActiveJwtInformationByUserId(user.getId());
   }
 }

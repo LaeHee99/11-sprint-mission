@@ -23,6 +23,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtTokenProvider jwtTokenProvider;
   private final UserDetailsService userDetailsService;
+  private final JwtRegistry jwtRegistry;
 
   @Override
   protected void doFilterInternal(
@@ -40,8 +41,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     String accessToken = authorizationHeader.substring(BEARER_PREFIX.length());
 
-    // access token이 유효하지 않으면 인증 처리하지 않고 다음 필터로 넘김
+    // access token 자체가 유효하지 않으면 인증하지 않음
     if (!jwtTokenProvider.validateToken(accessToken)) {
+      filterChain.doFilter(request, response);
+      return;
+    }
+
+    // registry에 등록된 access token이 아니면 인증하지 않음
+    if (!jwtRegistry.hasActiveJwtInformationByAccessToken(accessToken)) {
       filterChain.doFilter(request, response);
       return;
     }

@@ -22,6 +22,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
   private final JwtTokenProvider jwtTokenProvider;
   private final UserMapper userMapper;
   private final ObjectMapper objectMapper;
+  private final JwtRegistry jwtRegistry;
 
   @Override
   public void onAuthenticationSuccess(
@@ -38,6 +39,16 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     // refresh token은 HttpOnly 쿠키로 내려줌
     String refreshToken = jwtTokenProvider.generateRefreshToken(user);
+
+    // 로그인 성공 시 발급한 JWT 정보를 registry에 등록함
+    jwtRegistry.registerJwtInformation(new JwtInformation(
+        user.getId(),
+        accessToken,
+        refreshToken,
+        jwtTokenProvider.getExpirationTime(accessToken),
+        jwtTokenProvider.getExpirationTime(refreshToken)
+    ));
+
     response.addCookie(jwtTokenProvider.createRefreshTokenCookie(refreshToken));
 
     UserDto userDto = userMapper.toDto(user);
