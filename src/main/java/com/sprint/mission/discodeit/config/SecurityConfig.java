@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.security.DiscodeitAuthenticationFailureHandl
 import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.JwtAuthenticationFilter;
+import com.sprint.mission.discodeit.security.JwtLogoutHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -33,6 +34,7 @@ public class SecurityConfig {
   private final JwtLoginSuccessHandler jwtLoginSuccessHandler;
   private final DiscodeitAuthenticationFailureHandler authenticationFailureHandler;
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final JwtLogoutHandler jwtLogoutHandler;
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -91,6 +93,9 @@ public class SecurityConfig {
         .logout(logout -> logout
             // Spring Security가 처리할 로그아웃 URL 지정함
             .logoutUrl("/api/auth/logout")
+
+            // refresh token 쿠키를 기준으로 registry의 JWT 정보를 무효화함
+            .addLogoutHandler(jwtLogoutHandler)
 
             // 로그아웃 성공 시 응답 본문 없이 204 반환함
             .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
