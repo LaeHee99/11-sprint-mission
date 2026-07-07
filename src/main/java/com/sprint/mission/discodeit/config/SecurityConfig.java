@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.config;
 
 import com.sprint.mission.discodeit.security.DiscodeitAuthenticationFailureHandler;
-import com.sprint.mission.discodeit.security.DiscodeitAuthenticationSuccessHandler;
+import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -30,7 +30,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final DiscodeitAuthenticationSuccessHandler authenticationSuccessHandler;
+  private final JwtLoginSuccessHandler jwtLoginSuccessHandler;
   private final DiscodeitAuthenticationFailureHandler authenticationFailureHandler;
   private final UserDetailsService userDetailsService;
 
@@ -83,7 +83,7 @@ public class SecurityConfig {
             .loginProcessingUrl("/api/auth/login")
             .usernameParameter("username")
             .passwordParameter("password")
-            .successHandler(authenticationSuccessHandler)
+            .successHandler(jwtLoginSuccessHandler)
             .failureHandler(authenticationFailureHandler)
         )
         .logout(logout -> logout
