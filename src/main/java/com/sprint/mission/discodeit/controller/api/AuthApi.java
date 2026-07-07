@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.controller.api;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.data.JwtDto;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import jakarta.validation.Valid;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -29,19 +27,6 @@ public interface AuthApi {
   })
   ResponseEntity<Void> getCsrfToken(
       @Parameter(hidden = true) CsrfToken csrfToken
-  );
-
-  @Operation(summary = "현재 로그인 사용자 조회")
-  @ApiResponses(value = {
-      @ApiResponse(
-          responseCode = "200",
-          description = "현재 로그인 사용자 조회 성공",
-          content = @Content(schema = @Schema(implementation = UserDto.class))
-      )
-  })
-  ResponseEntity<UserDto> me(
-      @Parameter(hidden = true)
-      @AuthenticationPrincipal DiscodeitUserDetails userDetails
   );
 
   @Operation(summary = "사용자 역할 변경")

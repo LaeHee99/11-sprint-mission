@@ -8,13 +8,10 @@ import com.sprint.mission.discodeit.dto.data.JwtRefreshResult;
 import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.JwtAuthService;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.mapper.UserMapper;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,22 +30,9 @@ import jakarta.servlet.http.HttpServletResponse;
 @RequestMapping("/api/auth")
 public class AuthController implements AuthApi {
 
-  private final UserMapper userMapper;
   private final UserService userService;
   private final JwtAuthService jwtAuthService;
   private final JwtTokenProvider jwtTokenProvider;
-
-  @GetMapping("me")
-  public ResponseEntity<UserDto> me(
-      @AuthenticationPrincipal DiscodeitUserDetails userDetails
-  ) {
-    // 현재 인증된 사용자 정보를 UserDto로 변환해서 반환함
-    UserDto userDto = userMapper.toDto(userDetails.getUser());
-
-    return ResponseEntity
-        .status(HttpStatus.OK)
-        .body(userDto);
-  }
 
   @GetMapping("csrf-token")
   public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken) {
