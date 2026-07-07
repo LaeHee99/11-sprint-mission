@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -31,6 +32,7 @@ public class SecurityConfig {
 
   private final DiscodeitAuthenticationSuccessHandler authenticationSuccessHandler;
   private final DiscodeitAuthenticationFailureHandler authenticationFailureHandler;
+  private final UserDetailsService userDetailsService;
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -105,6 +107,24 @@ public class SecurityConfig {
 
             // 세션 정보를 SessionRegistry에 저장함
             .sessionRegistry(sessionRegistry())
+        )
+        .rememberMe(rememberMe -> rememberMe
+            // 로그인 요청에서 remember-me=true 파라미터를 확인함
+            .rememberMeParameter("remember-me")
+
+            // remember-me 토큰 검증에 사용할 UserDetailsService 지정함
+            .userDetailsService(userDetailsService)
+
+            // remember-me 쿠키 이름 지정함
+            .rememberMeCookieName("DISCODEIT_REMEMBER_ME")
+
+            // remember-me 토큰 유효 기간 설정함
+            // 14일 동안 유지됨
+            .tokenValiditySeconds(60 * 60 * 24 * 14)
+
+            // remember-me 토큰 서명에 사용할 key임
+            // 운영 환경에서는 설정값으로 분리하는 것이 좋음
+            .key("discodeit-remember-me-key")
         )
         .build();
 
