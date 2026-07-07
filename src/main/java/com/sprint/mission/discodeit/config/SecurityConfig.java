@@ -53,6 +53,7 @@ public class SecurityConfig {
             // 로그인/로그아웃 요청은 Spring Security 필터가 처리해야 하므로 허용함
             .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
 
             // 정적 리소스 접근 허용함
             .requestMatchers(
