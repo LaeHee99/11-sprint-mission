@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.config;
 
 import com.sprint.mission.discodeit.security.DiscodeitAuthenticationFailureHandler;
 import com.sprint.mission.discodeit.security.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -11,10 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.session.SessionRegistryImpl;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.http.HttpMethod;
@@ -32,7 +30,7 @@ public class SecurityConfig {
 
   private final JwtLoginSuccessHandler jwtLoginSuccessHandler;
   private final DiscodeitAuthenticationFailureHandler authenticationFailureHandler;
-  private final UserDetailsService userDetailsService;
+
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -93,38 +91,14 @@ public class SecurityConfig {
             // 로그아웃 성공 시 응답 본문 없이 204 반환함
             .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
 
-            // 로그아웃 시 현재 세션 무효화함
-            .invalidateHttpSession(true)
+            .invalidateHttpSession(false)
 
             // 브라우저에 남아있는 세션 쿠키 삭제 요청함
-            .deleteCookies("JSESSIONID")
+            .deleteCookies(JwtTokenProvider.REFRESH_TOKEN_COOKIE_NAME)
         )
         .sessionManagement(session -> session
-            .maximumSessions(1)
-            // true면 기존 로그인 세션이 있으면 새 로그인을 막음
-            // false면 새 로그인을 허용하고 기존 세션을 만료시킴
-            .maxSessionsPreventsLogin(false)
-
-            // 세션 정보를 SessionRegistry에 저장함
-            .sessionRegistry(sessionRegistry())
-        )
-        .rememberMe(rememberMe -> rememberMe
-            // 로그인 요청에서 remember-me=true 파라미터를 확인함
-            .rememberMeParameter("remember-me")
-
-            // remember-me 토큰 검증에 사용할 UserDetailsService 지정함
-            .userDetailsService(userDetailsService)
-
-            // remember-me 쿠키 이름 지정함
-            .rememberMeCookieName("DISCODEIT_REMEMBER_ME")
-
-            // remember-me 토큰 유효 기간 설정함
-            // 14일 동안 유지됨
-            .tokenValiditySeconds(60 * 60 * 24 * 14)
-
-            // remember-me 토큰 서명에 사용할 key임
-            // 운영 환경에서는 설정값으로 분리하는 것이 좋음
-            .key("discodeit-remember-me-key")
+            // JWT 기반 인증에서는 서버 세션을 생성하지 않음
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
         .build();
 
@@ -153,18 +127,4 @@ public class SecurityConfig {
        ROLE_CHANNEL_MANAGER > ROLE_USER
        """);
     }
-
-    @Bean
-    public SessionRegistry sessionRegistry() {
-      // 현재 인증된 사용자별 세션 정보를 저장함
-      // 중복 로그인 제어와 역할 변경 시 기존 세션 만료에 사용함
-      return new SessionRegistryImpl();
-    }
-
-  @Bean
-  public HttpSessionEventPublisher httpSessionEventPublisher() {
-    // 세션 생성/만료 이벤트를 Spring Security SessionRegistry에 전달함
-    // 세션 동시성 제어가 정확히 동작하기 위함
-    return new HttpSessionEventPublisher();
-  }
   }
